@@ -87,24 +87,18 @@
 </a-entity>
 
     <!-- Camera and Cursor -->
-    <a-entity camera look-controls>
-      <a-cursor
-        id="cursor"
-        raycaster="objects: .link"
-        animation__click="property: scale;
-                          startEvents: click;
-                          from: 0.1 0.1 0.1;
-                          to: 1 1 1;
-                          dur: 150"
-        animation__fusing="property: scale;
-                           startEvents: fusing;
-                           from: 1 1 1;
-                           to: 0.1 0.1 0.1;
-                           dur: 1500"
-        event-set__mouseenter="_event: mouseenter; color: springgreen"
-        event-set__mouseleave="_event: mouseleave; color: black">
-      </a-cursor>
-    </a-entity>
+    <a-entity position="0 1.6 0">
+  <a-camera look-controls>
+    <a-cursor
+      id="cursor"
+      raycaster="objects: .link"
+      animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+      animation__fusing="property: scale; startEvents: fusing; from: 1 1 1; to: 0.1 1 1; dur: 1500"
+      event-set__mouseenter="_event: mouseenter; color: springgreen"
+      event-set__mouseleave="_event: mouseleave; color: black">
+    </a-cursor>
+  </a-camera>
+</a-entity>
 
   </a-scene>
 </body>
