@@ -34,40 +34,26 @@
 
     <!-- Assets -->
     <a-assets>
-      <img id="city" crossorigin="anonymous"
-           src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg">
-      <img id="city-thumb" crossorigin="anonymous"
-           src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-city.jpg">
+  <!-- Panorama images -->
+  <img id="howls" src="pictures/howls.png">
+  <img id="cottage" src="pictures/cottage.png">
+  <img id="roof" src="pictures/roof.png">
 
-      <img id="cubes" crossorigin="anonymous"
-           src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg">
-      <img id="cubes-thumb" crossorigin="anonymous"
-           src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg">
+  <!-- Button thumbnails -->
+  <img id="btn1" src="pictures/Button1.png">
+  <img id="btn2" src="pictures/Button2.png">
+  <img id="btn3" src="pictures/Button3.png">
 
-      <img id="sechelt" crossorigin="anonymous"
-           src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
-      <img id="sechelt-thumb" crossorigin="anonymous"
-           src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-sechelt.jpg">
-
-      <audio id="click-sound" crossorigin="anonymous"
-             src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
-
-
-        <!-- Panorama images -->
-        <img id="howls1" src="Pictures/Howl's2.png">
-        <img id="cottage2" src="Pictures/Cottage2.png">
-
-         <!-- Thumbnails -->
-         <img id="thumb1" src="Pictures/thumb1.jpg">
-         <img id="thumb2" src="Pictures/thumb2.jpg">
-
-    </a-assets>
+  <!-- Click sound (optional, keep it) -->
+  <audio id="click-sound"
+         src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+</a-assets>
 
     <!-- 360° Background -->
     <a-sky
-      id="howls"
+      id="image-360"
       radius="10"
-      src="images/Howl's2.png"
+      src="#howls"
       animation__fade="property: components.material.material.color;
                        type: color;
                        from: #FFF;
@@ -83,22 +69,23 @@
     </a-sky>
 
     <!-- Image Links -->
-    <a-entity id="links"
-              layout="type: line; margin: 1.5"
-              position="-1.5 -1 -4">
+   <a-entity id="links"
+          layout="type: line; margin: 1.5"
+          position="-1.5 -1 -4">
 
-      <a-entity template="src: #link"
-                data-src="#city"
-                data-thumb="#city-thumb"></a-entity>
+  <a-entity template="src: #link"
+            data-src="#howls"
+            data-thumb="#btn1"></a-entity>
 
-      <a-entity template="src: #link"
-                data-src="#cubes"
-                data-thumb="#cubes-thumb"></a-entity>
+  <a-entity template="src: #link"
+            data-src="#cottage"
+            data-thumb="#btn2"></a-entity>
 
-      <a-entity template="src: #link"
-                data-src="#sechelt"
-                data-thumb="#sechelt-thumb"></a-entity>
-    </a-entity>
+  <a-entity template="src: #link"
+            data-src="#roof"
+            data-thumb="#btn3"></a-entity>
+
+</a-entity>
 
     <!-- Camera and Cursor -->
     <a-entity camera look-controls>
