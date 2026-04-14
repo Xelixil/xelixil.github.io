@@ -5,7 +5,7 @@
   <title>360° Image Gallery</title>
   <meta name="description" content="360° Image Gallery - A-Frame">
 
-  <!-- A-Frame Core -->
+  <!-- A-Frame Core --
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 
   <!-- Components -->
