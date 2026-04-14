@@ -31,28 +31,22 @@
 
 <body>
   <a-scene>
-
-    <!-- Assets -->
     <a-assets>
       <img id="city" crossorigin="anonymous"
            src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg">
       <img id="city-thumb" crossorigin="anonymous"
            src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-city.jpg">
-
       <img id="cubes" crossorigin="anonymous"
            src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg">
       <img id="cubes-thumb" crossorigin="anonymous"
            src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg">
-
       <img id="sechelt" crossorigin="anonymous"
            src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
       <img id="sechelt-thumb" crossorigin="anonymous"
            src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-sechelt.jpg">
-
       <audio id="click-sound" crossorigin="anonymous"
              src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
     </a-assets>
-
     <!-- 360° Background -->
     <a-sky
       id="image-360"
@@ -71,25 +65,20 @@
                            dur: 300;
                            startEvents: animationcomplete__fade">
     </a-sky>
-
     <!-- Image Links -->
     <a-entity id="links"
               layout="type: line; margin: 1.5"
               position="-1.5 -1 -4">
-
       <a-entity template="src: #link"
                 data-src="#city"
                 data-thumb="#city-thumb"></a-entity>
-
       <a-entity template="src: #link"
                 data-src="#cubes"
                 data-thumb="#cubes-thumb"></a-entity>
-
       <a-entity template="src: #link"
                 data-src="#sechelt"
                 data-thumb="#sechelt-thumb"></a-entity>
     </a-entity>
-
     <!-- Camera and Cursor -->
     <a-entity camera look-controls>
       <a-cursor
