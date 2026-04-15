@@ -20,6 +20,7 @@
     <img id="btn3Img" src="Pictures/Button3.png">
     <img id="btn4Img" src="Pictures/Button4.png">
     <img id="btn5Img" src="Pictures/Button5.png">
+    <img id="groundTex" src="Pictures/ground.png">
 
     <!-- Plane mode sky -->
     <img id="skyPlaneImg" src="Pictures/Sky1.png">
@@ -35,13 +36,13 @@
 
   <!-- GROUND (Plane Mode Only) -->
   <a-plane id="ground"
-           rotation="-90 0 0"
-           width="40"
-           height="40"
-           color="#888888"
-           position="0 -3 0"
-           visible="false">
-  </a-plane>
+         rotation="-90 0 0"
+         width="60"
+         height="60"
+         material="src: #groundTex; repeat: 20 20"
+         position="0 -1 0"
+         visible="false">
+</a-plane>
 
   <!-- PLANE -->
   <a-entity id="plane"
