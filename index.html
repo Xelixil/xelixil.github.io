@@ -132,32 +132,48 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // ✅ BETTER BUTTON PLACEMENT (front-left)
   function placeNextButton() {
-    const camera = document.querySelector('[camera]');
-    const camObj = camera.object3D;
+  const camera = document.querySelector('[camera]');
+  const camObj = camera.object3D;
 
-    const position = new THREE.Vector3();
-    camObj.getWorldPosition(position);
+  // Get camera world position
+  const position = new THREE.Vector3();
+  camObj.getWorldPosition(position);
 
-    const forward = new THREE.Vector3();
-    camObj.getWorldDirection(forward);
+  // Get forward direction
+  const forward = new THREE.Vector3();
+  const rotY = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
 
-    const left = new THREE.Vector3();
-    left.crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
+const forward = new THREE.Vector3(
+  -Math.sin(rotY),
+  0,
+  -Math.cos(rotY)
+);
 
-    const distance = 2.5;
-    const sideOffset = 0.8;
+  // ❗ REMOVE vertical influence (this is the key fix)
+  forward.y = 0;
+  forward.normalize();
 
-    const newPos = position
-      .clone()
-      .add(forward.multiplyScalar(distance))
-      .add(left.multiplyScalar(sideOffset));
+  // Compute LEFT vector (horizontal only)
+  const left = new THREE.Vector3(-forward.z, 0, forward.x);
 
-    newPos.y += 0.2;
+  const distance = 2.5;
+  const sideOffset = 0.8;
 
-    nextBtn.setAttribute('position', newPos);
+  const newPos = position
+    .clone()
+    .add(forward.multiplyScalar(distance))
+    .add(left.multiplyScalar(sideOffset));
 
-    nextBtn.object3D.lookAt(position);
-  }
+  // Keep button at consistent height (eye level-ish)
+  newPos.y = position.y - 0.3;
+
+  nextBtn.setAttribute('position', newPos);
+
+  // Make it face player (only rotate around Y)
+  nextBtn.object3D.lookAt(
+    new THREE.Vector3(position.x, newPos.y, position.z)
+  );
+}
 
   // ✅ ENTER PLANE MODE (waits for load)
   planeBtn.addEventListener('click', () => {
