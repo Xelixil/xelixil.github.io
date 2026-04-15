@@ -99,20 +99,29 @@ window.addEventListener('DOMContentLoaded', () => {
   let step = 0;
 
   const steps = [
-    { x: 7, y: 0.4, z: 1 },
-    { x: -6, y: -0.32, z: 0.8 },
-    { x: -6, y: -0.32, z: -6 },
-    { x: -6.5, y: -0.3, z: -6 }
+    { x: 7, y: 0.4, z: 1, rotY: -90 },
+    { x: -6, y: -0.32, z: 0.8, rotY: -90 },
+    { x: -6, y: -0.32, z: -6, rotY: -90 },
+    { x: -6.5, y: -0.3, z: -6, rotY: -90 },
   ];
 
   function moveRig(pos) {
-    rig.setAttribute('animation', {
-      property: 'position',
-      to: `${pos.x} ${pos.y} ${pos.z}`,
-      dur: 800,
-      easing: 'easeInOutQuad'
-    });
-  }
+  // move position
+  rig.setAttribute('animation__pos', {
+    property: 'position',
+    to: `${pos.x} ${pos.y} ${pos.z}`,
+    dur: 800,
+    easing: 'easeInOutQuad'
+  });
+
+  // rotate view
+  rig.setAttribute('animation__rot', {
+    property: 'rotation',
+    to: `0 ${pos.rotY} 0`,
+    dur: 800,
+    easing: 'easeInOutQuad'
+  });
+}
 
   function placeNextButton() {
   const camera = document.querySelector('[camera]');
