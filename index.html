@@ -2,8 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>360 Project Showcase</title>
-
+  <title>360 + Plane VR</title>
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 </head>
 
@@ -24,17 +23,14 @@
 
     <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
 
-    <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+    <audio id="click-sound"
+           src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
   </a-assets>
 
-  <!-- SKY (360 MODE) -->
+  <!-- SKY -->
   <a-sky id="sky" src="#howls"></a-sky>
 
-  <!-- SKY (PLANE MODE) -->
-  <a-sky id="planeSky"
-         visible="false"
-         color="#87CEEB">
-  </a-sky>
+  <a-sky id="planeSky" visible="false" color="#87CEEB"></a-sky>
 
   <!-- PLANE -->
   <a-entity id="plane"
@@ -44,34 +40,43 @@
             visible="false">
   </a-entity>
 
-  <!-- CAMERA RIG (MOVE THIS) -->
-  <a-entity id="rig" position="0 1.6 0">
-    <a-camera look-controls>
-      <a-cursor raycaster="objects: .clickable"></a-cursor>
-    </a-camera>
-  </a-entity>
-
-  <!-- BUTTONS -->
+  <!-- UI WORLD (360 BUTTONS) -->
   <a-entity id="ui" position="-2 -1 -4">
 
-    <!-- 360 buttons -->
-    <a-box class="clickable" id="b1" position="0 0 0" depth="0.1" height="1" width="1"
+    <a-box class="clickable" id="b1" position="0 0 0"
+           depth="0.1" height="1" width="1"
            material="src: #btn1"></a-box>
 
-    <a-box class="clickable" id="b2" position="1.5 0 0" depth="0.1" height="1" width="1"
+    <a-box class="clickable" id="b2" position="1.5 0 0"
+           depth="0.1" height="1" width="1"
            material="src: #btn2"></a-box>
 
-    <a-box class="clickable" id="b3" position="3 0 0" depth="0.1" height="1" width="1"
+    <a-box class="clickable" id="b3" position="3 0 0"
+           depth="0.1" height="1" width="1"
            material="src: #btn3"></a-box>
 
-    <!-- ENTER PLANE -->
-    <a-box class="clickable" id="btn4" position="4.5 0 0" depth="0.1" height="1" width="1"
+    <a-box class="clickable" id="btn4" position="4.5 0 0"
+           depth="0.1" height="1" width="1"
            material="src: #btn4"></a-box>
 
-    <!-- NEXT -->
-    <a-box class="clickable" id="btn5" position="6 0 0" depth="0.1" height="1" width="1"
-           material="src: #btn5"
-           visible="false"></a-box>
+  </a-entity>
+
+  <!-- CAMERA RIG (THIS MOVES) -->
+  <a-entity id="rig" position="0 1.6 0">
+
+    <a-camera look-controls>
+
+      <!-- NEXT BUTTON ATTACHED TO CAMERA -->
+      <a-entity id="nextBtn"
+                class="clickable"
+                position="0 -0.3 -1"
+                geometry="primitive: plane; height: 0.3; width: 0.6"
+                material="src: #btn5">
+      </a-entity>
+
+      <a-cursor raycaster="objects: .clickable"></a-cursor>
+
+    </a-camera>
 
   </a-entity>
 
@@ -83,69 +88,63 @@ window.addEventListener('DOMContentLoaded', () => {
   const sky = document.querySelector('#sky');
   const planeSky = document.querySelector('#planeSky');
   const plane = document.querySelector('#plane');
-
   const ui = document.querySelector('#ui');
-
   const rig = document.querySelector('#rig');
 
   const btn4 = document.querySelector('#btn4');
-  const btn5 = document.querySelector('#btn5');
+  const nextBtn = document.querySelector('#nextBtn');
 
+  let inPlaneMode = false;
   let step = 0;
 
+  // 📍 CAMERA POSITIONS (EDIT THESE!)
   const steps = [
-    { x: -6, y: 1.6, z: -4 },
-    { x: -5, y: 1.6, z: -6 },
-    { x: -6, y: 2.0, z: -7 }
+    { x: -6, y: 1.6, z: -4 }, // STEP 1: entry (when entering plane mode)
+    { x: -5, y: 1.6, z: -6 }, // STEP 2: aisle
+    { x: -4, y: 1.6, z: -7 }, // STEP 3: seat area
+    { x: -3, y: 1.6, z: -8 }  // STEP 4: final seat / window
   ];
 
   function moveRig(pos) {
     rig.setAttribute('animation', {
       property: 'position',
-      to: pos,
+      to: `${pos.x} ${pos.y} ${pos.z}`,
       dur: 800,
       easing: 'easeInOutQuad'
     });
   }
 
-  // CLICK DETECTION (GLOBAL FIX)
-  document.querySelectorAll('.clickable').forEach(el => {
-    el.addEventListener('click', (e) => {
+  // ENTER PLANE MODE
+  btn4.addEventListener('click', () => {
 
-      const id = el.id;
+    inPlaneMode = true;
+    step = 0;
 
-      // ENTER PLANE MODE
-      if (id === 'btn4') {
+    sky.setAttribute('visible', false);
+    planeSky.setAttribute('visible', true);
+    plane.setAttribute('visible', true);
+    ui.setAttribute('visible', false);
 
-        sky.setAttribute('visible', false);
-        planeSky.setAttribute('visible', true);
+    nextBtn.setAttribute('visible', true);
 
-        plane.setAttribute('visible', true);
-        ui.setAttribute('visible', false);
+    moveRig(steps[0]);
+  });
 
-        btn5.setAttribute('visible', true);
+  // NEXT BUTTON LOGIC
+  nextBtn.addEventListener('click', () => {
 
-        moveRig(steps[0]);
-      }
+    if (!inPlaneMode) return;
 
-      // NEXT STEP
-      if (id === 'btn5') {
+    step++;
 
-        step++;
+    if (step < steps.length) {
+      moveRig(steps[step]);
+    }
+    else {
+      // End of sequence
+      nextBtn.setAttribute('visible', false);
+    }
 
-        if (step < steps.length) {
-          moveRig(steps[step]);
-        } else {
-          btn5.setAttribute('visible', false);
-        }
-      }
-
-      // 360 IMAGE SWITCHING
-      if (id === 'b1') sky.setAttribute('src', '#howls');
-      if (id === 'b2') sky.setAttribute('src', '#cottage');
-      if (id === 'b3') sky.setAttribute('src', '#roof');
-
-    });
   });
 
 });
