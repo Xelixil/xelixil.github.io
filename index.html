@@ -361,15 +361,39 @@ inPlaneMode = false;
 
 function spawnButtons(){
 
-const pos = rig.object3D.position;
+  const camera = document.querySelector('[camera]');
+  const camObj = camera.object3D;
 
-ui.setAttribute('position',{
-x: pos.x - 1,
-y: pos.y - 1,
-z: pos.z - 3
-});
+  const position = new THREE.Vector3();
+  camObj.getWorldPosition(position);
 
-ui.setAttribute('visible',true);
+  const rotY = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
+
+  // Forward direction
+  const forward = new THREE.Vector3(
+    -Math.sin(rotY),
+    0,
+    -Math.cos(rotY)
+  );
+
+  // Left direction
+  const left = new THREE.Vector3(-forward.z, 0, forward.x);
+
+  const newPos = position
+    .clone()
+    .add(forward.multiplyScalar(2.5))   // in front
+    .add(left.multiplyScalar(1));       // 1 meter left
+
+  newPos.y = position.y - 0.8;
+
+  ui.setAttribute('position', newPos);
+
+  // Face player
+  ui.object3D.lookAt(
+    new THREE.Vector3(position.x, newPos.y, position.z)
+  );
+
+  ui.setAttribute('visible', true);
 
 }
 
