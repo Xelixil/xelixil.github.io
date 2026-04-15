@@ -35,7 +35,7 @@
 <a-sky id="sky" src="#howls"></a-sky>
 
 
-<!-- SKY 1 -->
+<!-- SKY1 -->
 <a-sky id="planeSky"
 src="#skyPlaneImg"
 material="opacity:1"
@@ -43,7 +43,7 @@ visible="false">
 </a-sky>
 
 
-<!-- SKY 2 -->
+<!-- SKY2 -->
 <a-sky id="planeSky2"
 src="#sky2Img"
 material="opacity:0"
@@ -54,8 +54,8 @@ visible="false">
 <!-- GROUND -->
 <a-plane id="ground"
 rotation="-90 0 0"
-width="900"
-height="900"
+width="200"
+height="200"
 position="0 -3 0"
 material="src:#groundTex; repeat:100 100; shader:standard; roughness:1; metalness:0"
 visible="false">
@@ -144,12 +144,12 @@ let step = 0;
 let planeLoaded = false;
 
 let takeoff = false;
-let groundSpeed = 0.15;
+let groundSpeed = 0.08;   // slower runway roll
+
 
 plane.addEventListener('model-loaded', () => {
 planeLoaded = true;
 });
-
 
 
 const steps = [
@@ -311,16 +311,17 @@ function startTakeoff(){
 
 takeoff = true;
 
+
 setTimeout(()=>{
 
 ground.setAttribute('animation__drop',{
 property:'position',
-to:`0 -60 -200`,
-dur:6000,
+to:`0 -120 -400`,
+dur:12000,
 easing:'linear'
 });
 
-},2000);
+},3000);
 
 
 
@@ -329,16 +330,16 @@ setTimeout(()=>{
 planeSky.setAttribute('animation__fadeout',{
 property:'material.opacity',
 to:0,
-dur:3000
+dur:8000
 });
 
 planeSky2.setAttribute('animation__fadein',{
 property:'material.opacity',
 to:1,
-dur:3000
+dur:8000
 });
 
-},4000);
+},7000);
 
 
 
@@ -346,13 +347,29 @@ setTimeout(()=>{
 
 ground.setAttribute('visible',false);
 
-planeSky.setAttribute('visible',false); // keep sky2 permanently
+planeSky.setAttribute('visible',false);
 
-ui.setAttribute('visible',true); // restore buttons
+spawnButtons();
 
 inPlaneMode = false;
 
-},7000);
+},15000);
+
+}
+
+
+
+function spawnButtons(){
+
+const pos = rig.object3D.position;
+
+ui.setAttribute('position',{
+x: pos.x - 1,
+y: pos.y - 1,
+z: pos.z - 3
+});
+
+ui.setAttribute('visible',true);
 
 }
 
