@@ -22,9 +22,6 @@
     <img id="btn5" src="Pictures/Button5.png">
 
     <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
-
-    <audio id="click-sound"
-           src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
   </a-assets>
 
   <!-- SKY -->
@@ -40,41 +37,42 @@
             visible="false">
   </a-entity>
 
-  <!-- UI WORLD (360 BUTTONS) -->
+  <!-- UI BUTTONS (WORLD) -->
   <a-entity id="ui" position="-2 -1 -4">
 
-    <a-box class="clickable" id="b1" position="0 0 0"
+    <a-box class="ui-button" id="b1" position="0 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn1"></a-box>
 
-    <a-box class="clickable" id="b2" position="1.5 0 0"
+    <a-box class="ui-button" id="b2" position="1.5 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn2"></a-box>
 
-    <a-box class="clickable" id="b3" position="3 0 0"
+    <a-box class="ui-button" id="b3" position="3 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn3"></a-box>
 
-    <a-box class="clickable" id="btn4" position="4.5 0 0"
+    <a-box class="ui-button" id="btn4" position="4.5 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn4"></a-box>
 
   </a-entity>
 
-  <!-- CAMERA RIG (THIS MOVES) -->
+  <!-- CAMERA RIG -->
   <a-entity id="rig" position="0 1.6 0">
 
-    <a-camera look-controls>
+    <a-camera look-controls
+              raycaster="objects: .ui-button, .nav-button"
+              cursor="rayOrigin: mouse">
 
-      <!-- NEXT BUTTON ATTACHED TO CAMERA -->
+      <!-- NEXT BUTTON (NOT BLOCKING VIEW) -->
       <a-entity id="nextBtn"
-                class="clickable"
-                position="0 -0.3 -1"
+                class="nav-button"
+                position="0 -0.5 -1.5"
                 geometry="primitive: plane; height: 0.3; width: 0.6"
-                material="src: #btn5">
+                material="src: #btn5"
+                visible="false">
       </a-entity>
-
-      <a-cursor raycaster="objects: .clickable"></a-cursor>
 
     </a-camera>
 
@@ -97,12 +95,11 @@ window.addEventListener('DOMContentLoaded', () => {
   let inPlaneMode = false;
   let step = 0;
 
-  // 📍 CAMERA POSITIONS (EDIT THESE!)
   const steps = [
-    { x: -6, y: 1.6, z: -4 }, // STEP 1: entry (when entering plane mode)
-    { x: -5, y: 1.6, z: -6 }, // STEP 2: aisle
-    { x: -4, y: 1.6, z: -7 }, // STEP 3: seat area
-    { x: -3, y: 1.6, z: -8 }  // STEP 4: final seat / window
+    { x: -6, y: 1.6, z: -4 },
+    { x: -5, y: 1.6, z: -6 },
+    { x: -4, y: 1.6, z: -7 },
+    { x: -3, y: 1.6, z: -8 }
   ];
 
   function moveRig(pos) {
@@ -130,7 +127,7 @@ window.addEventListener('DOMContentLoaded', () => {
     moveRig(steps[0]);
   });
 
-  // NEXT BUTTON LOGIC
+  // NEXT BUTTON
   nextBtn.addEventListener('click', () => {
 
     if (!inPlaneMode) return;
@@ -139,9 +136,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (step < steps.length) {
       moveRig(steps[step]);
-    }
-    else {
-      // End of sequence
+    } else {
       nextBtn.setAttribute('visible', false);
     }
 
