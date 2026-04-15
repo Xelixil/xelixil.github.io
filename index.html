@@ -151,7 +151,7 @@ planeLoaded = true;
 });
 
 const steps = [
-{ x: 50, y: 0.4, z: 40, rotY: 0 },
+{ x: 50, y: 3, z: 40, rotY: 0 },
 { x: 0, y: 0.4, z: 27, rotY: 0 },
 { x: 0, y: 0.4, z: 9.4, rotY: 0 },
 { x: 3, y: -0.3, z: 9.4, rotY: 0 },
@@ -248,7 +248,7 @@ function resetPlaneMode(){
 step = 0;
 takeoff = false;
 
-ground.object3D.position.set(0,-10,0);
+ground.object3D.position.set(0,-7,0);
 
 planeSky.setAttribute('material','opacity',1);
 planeSky2.setAttribute('material','opacity',0);
