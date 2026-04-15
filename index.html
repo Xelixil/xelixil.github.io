@@ -37,44 +37,55 @@
             visible="false">
   </a-entity>
 
-  <!-- UI BUTTONS (WORLD) -->
+  <!-- UI BUTTONS -->
   <a-entity id="ui" position="-2 -1 -4">
 
-    <a-box class="ui-button" id="b1" position="0 0 0"
+    <a-box class="link" id="b1" position="0 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn1"></a-box>
 
-    <a-box class="ui-button" id="b2" position="1.5 0 0"
+    <a-box class="link" id="b2" position="1.5 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn2"></a-box>
 
-    <a-box class="ui-button" id="b3" position="3 0 0"
+    <a-box class="link" id="b3" position="3 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn3"></a-box>
 
-    <a-box class="ui-button" id="btn4" position="4.5 0 0"
+    <a-box class="link" id="btn4" position="4.5 0 0"
            depth="0.1" height="1" width="1"
            material="src: #btn4"></a-box>
 
   </a-entity>
 
-  <!-- CAMERA RIG -->
-  <a-entity id="rig" position="0 1.6 0">
+  <!-- CAMERA + YOUR ORIGINAL CURSOR -->
+  <a-entity camera look-controls>
 
-    <a-camera look-controls
-              raycaster="objects: .ui-button, .nav-button"
-              cursor="rayOrigin: mouse">
+    <a-cursor
+      id="cursor"
+      animation__click="property: scale;
+                        startEvents: click;
+                        from: 0.1 0.1 0.1;
+                        to: 1 1 1;
+                        dur: 150"
+      animation__fusing="property: fusing;
+                         startEvents: fusing;
+                         from: 1 1 1;
+                         to: 0.1 1 1;
+                         dur: 1500"
+      event-set__mouseenter="_event: mouseenter; color: springgreen"
+      event-set__mouseleave="_event: mouseleave; color: black"
+      raycaster="objects: .link">
+    </a-cursor>
 
-      <!-- NEXT BUTTON (NOT BLOCKING VIEW) -->
-      <a-entity id="nextBtn"
-                class="nav-button"
-                position="0 -0.5 -1.5"
-                geometry="primitive: plane; height: 0.3; width: 0.6"
-                material="src: #btn5"
-                visible="false">
-      </a-entity>
-
-    </a-camera>
+    <!-- NEXT BUTTON (IN WORLD, NOT BLOCKING VIEW) -->
+    <a-entity id="nextBtn"
+              class="link"
+              position="0 -0.5 -2"
+              geometry="primitive: plane; height: 0.3; width: 0.6"
+              material="src: #btn5"
+              visible="false">
+    </a-entity>
 
   </a-entity>
 
@@ -87,7 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const planeSky = document.querySelector('#planeSky');
   const plane = document.querySelector('#plane');
   const ui = document.querySelector('#ui');
-  const rig = document.querySelector('#rig');
 
   const btn4 = document.querySelector('#btn4');
   const nextBtn = document.querySelector('#nextBtn');
@@ -101,6 +111,8 @@ window.addEventListener('DOMContentLoaded', () => {
     { x: -4, y: 1.6, z: -7 },
     { x: -3, y: 1.6, z: -8 }
   ];
+
+  const rig = document.querySelector('[camera]').parentElement;
 
   function moveRig(pos) {
     rig.setAttribute('animation', {
@@ -127,7 +139,7 @@ window.addEventListener('DOMContentLoaded', () => {
     moveRig(steps[0]);
   });
 
-  // NEXT BUTTON
+  // NEXT STEP
   nextBtn.addEventListener('click', () => {
 
     if (!inPlaneMode) return;
@@ -140,6 +152,17 @@ window.addEventListener('DOMContentLoaded', () => {
       nextBtn.setAttribute('visible', false);
     }
 
+  });
+
+  // 360 BUTTONS
+  document.querySelectorAll('.link').forEach(el => {
+    el.addEventListener('click', () => {
+
+      if (el.id === 'b1') sky.setAttribute('src', '#howls');
+      if (el.id === 'b2') sky.setAttribute('src', '#cottage');
+      if (el.id === 'b3') sky.setAttribute('src', '#roof');
+
+    });
   });
 
 });
