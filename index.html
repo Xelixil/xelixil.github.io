@@ -139,21 +139,16 @@ window.addEventListener('DOMContentLoaded', () => {
   const position = new THREE.Vector3();
   camObj.getWorldPosition(position);
 
-  // Get forward direction
-  const forward = new THREE.Vector3();
+  // ✅ Use rig rotation (stable, ignores head tilt)
   const rotY = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
 
-const forward = new THREE.Vector3(
-  -Math.sin(rotY),
-  0,
-  -Math.cos(rotY)
-);
+  const forward = new THREE.Vector3(
+    -Math.sin(rotY),
+    0,
+    -Math.cos(rotY)
+  );
 
-  // ❗ REMOVE vertical influence (this is the key fix)
-  forward.y = 0;
-  forward.normalize();
-
-  // Compute LEFT vector (horizontal only)
+  // LEFT direction
   const left = new THREE.Vector3(-forward.z, 0, forward.x);
 
   const distance = 2.5;
@@ -164,12 +159,12 @@ const forward = new THREE.Vector3(
     .add(forward.multiplyScalar(distance))
     .add(left.multiplyScalar(sideOffset));
 
-  // Keep button at consistent height (eye level-ish)
+  // Keep consistent height
   newPos.y = position.y - 0.3;
 
   nextBtn.setAttribute('position', newPos);
 
-  // Make it face player (only rotate around Y)
+  // Face player (horizontal only)
   nextBtn.object3D.lookAt(
     new THREE.Vector3(position.x, newPos.y, position.z)
   );
