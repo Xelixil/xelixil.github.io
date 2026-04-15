@@ -20,10 +20,11 @@
     <img id="btn3Img" src="Pictures/Button3.png">
     <img id="btn4Img" src="Pictures/Button4.png">
     <img id="btn5Img" src="Pictures/Button5.png">
+
     <img id="groundTex" src="Pictures/ground.png">
 
-    <!-- Plane mode sky -->
     <img id="skyPlaneImg" src="Pictures/Sky1.png">
+    <img id="sky2Img" src="Pictures/sky2.png">
 
     <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
   </a-assets>
@@ -31,18 +32,29 @@
   <!-- NORMAL SKY -->
   <a-sky id="sky" src="#howls"></a-sky>
 
-  <!-- PLANE MODE SKY -->
-  <a-sky id="planeSky" src="#skyPlaneImg" visible="false"></a-sky>
+  <!-- PLANE MODE SKY 1 -->
+  <a-sky id="planeSky"
+         src="#skyPlaneImg"
+         material="opacity:1"
+         visible="false">
+  </a-sky>
 
-  <!-- GROUND (Plane Mode Only) -->
+  <!-- PLANE MODE SKY 2 (for fade) -->
+  <a-sky id="planeSky2"
+         src="#sky2Img"
+         material="opacity:0"
+         visible="false">
+  </a-sky>
+
+  <!-- GROUND -->
   <a-plane id="ground"
          rotation="-90 0 0"
          width="200"
          height="200"
          position="0 -3 0"
-         material="src: #groundTex; repeat: 100 100; shader: standard; roughness: 1; metalness: 0"
+         material="src: #groundTex; repeat: 100 100; shader: standard; roughness:1; metalness:0"
          visible="false">
-</a-plane>
+  </a-plane>
 
   <!-- PLANE -->
   <a-entity id="plane"
@@ -105,6 +117,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const sky = document.querySelector('#sky');
   const planeSky = document.querySelector('#planeSky');
+  const planeSky2 = document.querySelector('#planeSky2');
+
   const ground = document.querySelector('#ground');
   const plane = document.querySelector('#plane');
   const ui = document.querySelector('#ui');
@@ -117,9 +131,11 @@ window.addEventListener('DOMContentLoaded', () => {
   let step = 0;
   let planeLoaded = false;
 
+  let takeoff = false;
+  let groundSpeed = 0.15;
+
   plane.addEventListener('model-loaded', () => {
     planeLoaded = true;
-    console.log("Plane loaded");
   });
 
   const steps = [
@@ -189,6 +205,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     sky.setAttribute('visible', false);
     planeSky.setAttribute('visible', true);
+    planeSky2.setAttribute('visible', true);
 
     ground.setAttribute('visible', true);
 
@@ -220,15 +237,72 @@ window.addEventListener('DOMContentLoaded', () => {
     step++;
 
     if (step < steps.length) {
+
       moveRig(steps[step]);
       setTimeout(placeNextButton, 850);
+
     } else {
+
       nextBtn.setAttribute('visible', false);
+
+      startTakeoff();
+
     }
 
   });
 
+  function startTakeoff(){
 
+    takeoff = true;
+
+    setTimeout(() => {
+
+      ground.setAttribute('animation__drop', {
+        property: 'position',
+        to: `0 -60 -200`,
+        dur: 6000,
+        easing: 'linear'
+      });
+
+    },2000);
+
+    setTimeout(() => {
+
+      planeSky.setAttribute('animation__fadeout', {
+        property: 'material.opacity',
+        to: 0,
+        dur: 3000
+      });
+
+      planeSky2.setAttribute('animation__fadein', {
+        property: 'material.opacity',
+        to: 1,
+        dur: 3000
+      });
+
+    },4000);
+
+    setTimeout(() => {
+
+      ground.setAttribute('visible', false);
+
+    },7000);
+
+  }
+
+  function animateGround(){
+
+    if(takeoff){
+
+      ground.object3D.position.z -= groundSpeed;
+
+    }
+
+    requestAnimationFrame(animateGround);
+
+  }
+
+  animateGround();
 
   document.querySelectorAll('#b1, #b2, #b3').forEach(el => {
 
