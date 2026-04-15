@@ -54,7 +54,6 @@
            depth="0.1" height="1" width="1"
            material="src: #btn3Img"></a-box>
 
-    <!-- FIXED ID -->
     <a-box class="link" id="planeBtn"
            position="4.5 0 0"
            depth="0.1" height="1" width="1"
@@ -66,20 +65,23 @@
   <a-entity id="rig">
     <a-entity camera look-controls>
 
+      <!-- ✅ FIXED CURSOR -->
       <a-cursor
         raycaster="objects: .link"
+        material="color: white; shader: flat; depthTest: false"
         animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150">
       </a-cursor>
 
     </a-entity>
   </a-entity>
 
+  <!-- NEXT BUTTON -->
   <a-entity id="nextBtn"
-  class="link"
-  geometry="primitive: plane; height: 0.3; width: 0.6"
-  material="src: #btn5Img; transparent: true; depthTest: false"
-  visible="false">
-</a-entity>
+    class="link"
+    geometry="primitive: plane; height: 0.35; width: 0.7"
+    material="src: #btn5Img; transparent: true; depthTest: false"
+    visible="false">
+  </a-entity>
 
 </a-scene>
 
@@ -91,95 +93,116 @@ window.addEventListener('DOMContentLoaded', () => {
   const plane = document.querySelector('#plane');
   const ui = document.querySelector('#ui');
 
-  const planeBtn = document.querySelector('#planeBtn'); // FIXED
+  const planeBtn = document.querySelector('#planeBtn');
   const nextBtn = document.querySelector('#nextBtn');
   const rig = document.querySelector('#rig');
 
   let inPlaneMode = false;
   let step = 0;
+  let planeLoaded = false;
+
+  // ✅ detect when model is ready
+  plane.addEventListener('model-loaded', () => {
+    planeLoaded = true;
+    console.log("Plane loaded");
+  });
 
   const steps = [
     { x: 7, y: 0.4, z: 1, rotY: 90 },
     { x: -6, y: -0.32, z: 0.8, rotY: 180 },
     { x: -6, y: -0.32, z: -5.9, rotY: 90 },
-    { x: -5.2, y: -0.7, z: -5.9, rotY: 0 },
+    { x: -5.25, y: -0.65, z: -5.9, rotY: 0 },
   ];
 
   function moveRig(pos) {
-  // move position
-  rig.setAttribute('animation__pos', {
-    property: 'position',
-    to: `${pos.x} ${pos.y} ${pos.z}`,
-    dur: 800,
-    easing: 'easeInOutQuad'
-  });
+    rig.setAttribute('animation__pos', {
+      property: 'position',
+      to: `${pos.x} ${pos.y} ${pos.z}`,
+      dur: 800,
+      easing: 'easeInOutQuad'
+    });
 
-  // rotate view
-  rig.setAttribute('animation__rot', {
-    property: 'rotation',
-    to: `0 ${pos.rotY} 0`,
-    dur: 800,
-    easing: 'easeInOutQuad'
-  });
-}
+    rig.setAttribute('animation__rot', {
+      property: 'rotation',
+      to: `0 ${pos.rotY} 0`,
+      dur: 800,
+      easing: 'easeInOutQuad'
+    });
+  }
 
+  // ✅ BETTER BUTTON PLACEMENT (front-left)
   function placeNextButton() {
-  const camera = document.querySelector('[camera]');
-  const camObj = camera.object3D;
+    const camera = document.querySelector('[camera]');
+    const camObj = camera.object3D;
 
-  const direction = new THREE.Vector3();
-  camObj.getWorldDirection(direction);
+    const position = new THREE.Vector3();
+    camObj.getWorldPosition(position);
 
-  const position = new THREE.Vector3();
-  camObj.getWorldPosition(position);
+    const forward = new THREE.Vector3();
+    camObj.getWorldDirection(forward);
 
-  // place 2 units in front of camera
-  const distance = 2;
-  const newPos = position.clone().add(direction.multiplyScalar(distance));
+    const left = new THREE.Vector3();
+    left.crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
 
-  nextBtn.setAttribute('position', newPos);
+    const distance = 2.5;
+    const sideOffset = 0.8;
 
-  // make button face the camera
-  nextBtn.object3D.lookAt(position);
-}
+    const newPos = position
+      .clone()
+      .add(forward.multiplyScalar(distance))
+      .add(left.multiplyScalar(sideOffset));
 
-  // ✅ ENTER PLANE MODE (FIXED)
+    newPos.y += 0.2;
+
+    nextBtn.setAttribute('position', newPos);
+
+    nextBtn.object3D.lookAt(position);
+  }
+
+  // ✅ ENTER PLANE MODE (waits for load)
   planeBtn.addEventListener('click', () => {
 
-  inPlaneMode = true;
-  step = 0;
+    inPlaneMode = true;
+    step = 0;
 
-  sky.setAttribute('visible', false);
-  planeSky.setAttribute('visible', true);
-  plane.setAttribute('visible', true);
+    sky.setAttribute('visible', false);
+    planeSky.setAttribute('visible', true);
+    ui.setAttribute('visible', false);
 
-  ui.setAttribute('visible', false);
-  nextBtn.setAttribute('visible', true);
+    nextBtn.setAttribute('visible', true);
 
-  moveRig(steps[0]);
+    function startWhenReady() {
+      if (!planeLoaded) {
+        requestAnimationFrame(startWhenReady);
+        return;
+      }
 
-  setTimeout(placeNextButton, 850); // after movement
-});
+      plane.setAttribute('visible', true);
+      moveRig(steps[0]);
+
+      setTimeout(placeNextButton, 850);
+    }
+
+    startWhenReady();
+  });
 
   // NEXT BUTTON
   nextBtn.addEventListener('click', () => {
 
-  if (!inPlaneMode) return;
+    if (!inPlaneMode) return;
 
-  step++;
+    step++;
 
-  if (step < steps.length) {
-    moveRig(steps[step]);
+    if (step < steps.length) {
+      moveRig(steps[step]);
+      setTimeout(placeNextButton, 850);
+    } else {
+      nextBtn.setAttribute('visible', false);
+    }
 
-    setTimeout(placeNextButton, 850); // reposition after move
+  });
 
-  } else {
-    nextBtn.setAttribute('visible', false);
-  }
-
-});
-
-  // ONLY 360 BUTTONS (exclude planeBtn & nextBtn)
+  // 360 BUTTONS
   document.querySelectorAll('#b1, #b2, #b3').forEach(el => {
     el.addEventListener('click', () => {
 
