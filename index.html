@@ -52,23 +52,23 @@ visible="false">
 
 
 <!-- GROUND -->
-<a-plane id="ground"
+<a-plane
+id="ground"
 rotation="-90 0 0"
-width="200"
-height="200"
+width="500"
+height="500"
 position="0 -3 0"
 material="src:#groundTex; repeat:100 100; shader:standard; roughness:1; metalness:0"
 visible="false">
-</a-plane>
 
 
 <!-- PLANE -->
-<a-entity id="plane"
+<a-entity
+id="plane"
 gltf-model="#planeModel"
 position="-6 -1 -6"
-scale="0.5 0.5 0.5"
+scale="10 10 10"
 visible="false">
-</a-entity>
 
 
 <!-- UI BUTTONS -->
@@ -144,7 +144,11 @@ let step = 0;
 let planeLoaded = false;
 
 let takeoff = false;
-let groundSpeed = 0.08;   // slower runway roll
+let groundSpeed = 0.08;
+
+
+/* SCALE FIX FOR VR */
+const planeScaleFactor = 20;
 
 
 plane.addEventListener('model-loaded', () => {
@@ -159,6 +163,14 @@ const steps = [
 { x: -5.26, y: -0.8, z: -5.9, rotY: 0 },
 ];
 
+
+/* SCALE THE PATH FOR VR */
+const scaledSteps = steps.map(p => ({
+x: p.x * planeScaleFactor,
+y: p.y * planeScaleFactor,
+z: p.z * planeScaleFactor,
+rotY: p.rotY
+}));
 
 
 function moveRig(pos){
@@ -178,7 +190,6 @@ easing:'easeInOutQuad'
 });
 
 }
-
 
 
 function placeNextButton(){
@@ -215,14 +226,12 @@ new THREE.Vector3(position.x,newPos.y,position.z)
 }
 
 
-
 planeBtn.addEventListener('click', () => {
 
 resetPlaneMode();
 enterPlaneMode();
 
 });
-
 
 
 function enterPlaneMode(){
@@ -250,7 +259,7 @@ return;
 
 plane.setAttribute('visible',true);
 
-moveRig(steps[0]);
+moveRig(scaledSteps[0]);
 
 setTimeout(placeNextButton,850);
 
@@ -259,7 +268,6 @@ setTimeout(placeNextButton,850);
 startWhenReady();
 
 }
-
 
 
 function resetPlaneMode(){
@@ -283,22 +291,20 @@ nextBtn.setAttribute('visible',false);
 }
 
 
-
 nextBtn.addEventListener('click', () => {
 
 if(!inPlaneMode) return;
 
 step++;
 
-if(step < steps.length){
+if(step < scaledSteps.length){
 
-moveRig(steps[step]);
+moveRig(scaledSteps[step]);
 setTimeout(placeNextButton,850);
 
 }else{
 
 nextBtn.setAttribute('visible',false);
-
 startTakeoff();
 
 }
@@ -306,23 +312,20 @@ startTakeoff();
 });
 
 
-
 function startTakeoff(){
 
 takeoff = true;
-
 
 setTimeout(()=>{
 
 ground.setAttribute('animation__drop',{
 property:'position',
-to:`0 -120 -400`,
+to:`0 -300 -800`,
 dur:12000,
 easing:'linear'
 });
 
 },3000);
-
 
 
 setTimeout(()=>{
@@ -342,7 +345,6 @@ dur:8000
 },7000);
 
 
-
 setTimeout(()=>{
 
 ground.setAttribute('visible',false);
@@ -358,45 +360,40 @@ inPlaneMode = false;
 }
 
 
-
 function spawnButtons(){
 
-  const camera = document.querySelector('[camera]');
-  const camObj = camera.object3D;
+const camera = document.querySelector('[camera]');
+const camObj = camera.object3D;
 
-  const position = new THREE.Vector3();
-  camObj.getWorldPosition(position);
+const position = new THREE.Vector3();
+camObj.getWorldPosition(position);
 
-  const rotY = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
+const rotY = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
 
-  // Forward direction
-  const forward = new THREE.Vector3(
-    -Math.sin(rotY),
-    0,
-    -Math.cos(rotY)
-  );
+const forward = new THREE.Vector3(
+-Math.sin(rotY),
+0,
+-Math.cos(rotY)
+);
 
-  // Left direction
-  const left = new THREE.Vector3(-forward.z, 0, forward.x);
+const left = new THREE.Vector3(-forward.z, 0, forward.x);
 
-  const newPos = position
-    .clone()
-    .add(forward.multiplyScalar(2.5))   // in front
-    .add(left.multiplyScalar(1));       // 1 meter left
+const newPos = position
+.clone()
+.add(forward.multiplyScalar(2.5))
+.add(left.multiplyScalar(1));
 
-  newPos.y = position.y - 0.8;
+newPos.y = position.y - 0.8;
 
-  ui.setAttribute('position', newPos);
+ui.setAttribute('position', newPos);
 
-  // Face player
-  ui.object3D.lookAt(
-    new THREE.Vector3(position.x, newPos.y, position.z)
-  );
+ui.object3D.lookAt(
+new THREE.Vector3(position.x, newPos.y, position.z)
+);
 
-  ui.setAttribute('visible', true);
+ui.setAttribute('visible', true);
 
 }
-
 
 
 function animateGround(){
@@ -414,7 +411,6 @@ requestAnimationFrame(animateGround);
 animateGround();
 
 
-
 document.querySelectorAll('#b1,#b2,#b3').forEach(el=>{
 
 el.addEventListener('click',()=>{
@@ -430,6 +426,5 @@ if(el.id==='b3') sky.setAttribute('src','#roof');
 });
 
 </script>
-
 </body>
 </html>
