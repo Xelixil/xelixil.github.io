@@ -228,21 +228,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   });
 
-  const ground = document.querySelector('#ground');
 
-function updateGround() {
-
-  if (!inPlaneMode) return;
-
-  const rigPos = rig.object3D.position;
-
-  ground.object3D.position.x = rigPos.x;
-  ground.object3D.position.z = rigPos.z;
-
-  requestAnimationFrame(updateGround);
-}
-
-updateGround();
 
   document.querySelectorAll('#b1, #b2, #b3').forEach(el => {
 
