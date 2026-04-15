@@ -37,10 +37,10 @@
   <!-- GROUND (Plane Mode Only) -->
   <a-plane id="ground"
          rotation="-90 0 0"
-         width="60"
-         height="60"
-         material="src: #groundTex; repeat: 20 20"
-         position="0 -2 0"
+         width="200"
+         height="200"
+         position="0 -1 0"
+         material="src: #groundTex; repeat: 100 100; shader: standard; roughness: 1; metalness: 0"
          visible="false">
 </a-plane>
 
@@ -227,6 +227,22 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
   });
+
+  const ground = document.querySelector('#ground');
+
+function updateGround() {
+
+  if (!inPlaneMode) return;
+
+  const rigPos = rig.object3D.position;
+
+  ground.object3D.position.x = rigPos.x;
+  ground.object3D.position.z = rigPos.z;
+
+  requestAnimationFrame(updateGround);
+}
+
+updateGround();
 
   document.querySelectorAll('#b1, #b2, #b3').forEach(el => {
 
