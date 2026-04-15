@@ -14,6 +14,9 @@
   <script src="https://unpkg.com/aframe-event-set-component@5.x.x/dist/aframe-event-set-component.min.js"></script>
   <script src="https://unpkg.com/aframe-proxy-event-component@2.1.0/dist/aframe-proxy-event-component.min.js"></script>
 
+  <!-- Gradient Sky -->
+  <script src="https://unpkg.com/aframe-gradient-sky/dist/gradient-sky.min.js"></script>
+
   <!-- Template for clickable image links -->
   <script id="link" type="text/html">
     <a-entity
@@ -32,23 +35,25 @@
 <body>
   <a-scene>
 
+    <!-- Assets -->
     <a-assets>
-  <!-- Panorama images -->
-  <img id="howls" src="Pictures/howls.png">
-  <img id="cottage" src="Pictures/cottage.png">
-  <img id="roof" src="Pictures/roof.png">
+      <!-- Panorama images -->
+      <img id="howls" src="Pictures/howls.png">
+      <img id="cottage" src="Pictures/cottage.png">
+      <img id="roof" src="Pictures/roof.png">
 
-  <!-- Button thumbnails -->
-  <img id="btn1" src="Pictures/Button1.png">
-  <img id="btn2" src="Pictures/Button2.png">
-  <img id="btn3" src="Pictures/Button3.png">
+      <!-- Button thumbnails -->
+      <img id="btn1" src="Pictures/Button1.png">
+      <img id="btn2" src="Pictures/Button2.png">
+      <img id="btn3" src="Pictures/Button3.png">
+      <img id="btn4" src="Pictures/Button4.png">
 
-  <!-- Click sound (optional, keep it) -->
-  <audio id="click-sound"
-         src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
-</a-assets>
+      <!-- Click sound -->
+      <audio id="click-sound"
+             src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+    </a-assets>
 
-    <!-- 360° Background -->
+    <!-- 360° Gallery Sky -->
     <a-sky
       id="image-360"
       radius="10"
@@ -67,26 +72,43 @@
                            startEvents: animationcomplete__fade">
     </a-sky>
 
-    <!-- Image Links -->
-   <a-entity id="links"
-          layout="type: line; margin: 1.5"
-          position="-1.5 -1 -4">
+    <!-- Airplane Scene Sky (hidden at start) -->
+    <a-sky id="plane-sky"
+           visible="false"
+           radius="10"
+           material="shader: gradient; topColor: #ffffff; bottomColor: #4a90e2">
+    </a-sky>
 
-  <a-entity template="src: #link"
-            data-src="#howls"
-            data-thumb="#btn1"></a-entity>
+    <!-- Image Buttons -->
+    <a-entity id="links"
+              layout="type: line; margin: 1.5"
+              position="-2.25 -1 -4">
 
-  <a-entity template="src: #link"
-            data-src="#cottage"
-            data-thumb="#btn2"></a-entity>
+      <a-entity template="src: #link"
+                data-src="#howls"
+                data-thumb="#btn1"></a-entity>
 
-  <a-entity template="src: #link"
-            data-src="#roof"
-            data-thumb="#btn3"></a-entity>
+      <a-entity template="src: #link"
+                data-src="#cottage"
+                data-thumb="#btn2"></a-entity>
 
-</a-entity>
+      <a-entity template="src: #link"
+                data-src="#roof"
+                data-thumb="#btn3"></a-entity>
 
-    <!-- Camera and Cursor -->
+      <!-- Button 4 (Custom Behavior) -->
+      <a-entity id="btn4-entity"
+                class="link"
+                geometry="primitive: plane; height: 1; width: 1"
+                material="shader: flat; src: #btn4"
+                sound="on: click; src: #click-sound"
+                event-set__mouseenter="scale: 1.2 1.2 1"
+                event-set__mouseleave="scale: 1 1 1">
+      </a-entity>
+
+    </a-entity>
+
+    <!-- Camera -->
     <a-entity camera look-controls>
       <a-cursor
         id="cursor"
@@ -107,5 +129,21 @@
     </a-entity>
 
   </a-scene>
+
+  <!-- Script -->
+  <script>
+    const btn4 = document.querySelector('#btn4-entity');
+    const sky360 = document.querySelector('#image-360');
+    const planeSky = document.querySelector('#plane-sky');
+
+    btn4.addEventListener('click', () => {
+      // Hide gallery
+      sky360.setAttribute('visible', false);
+
+      // Show airplane scene
+      planeSky.setAttribute('visible', true);
+    });
+  </script>
+
 </body>
 </html>
