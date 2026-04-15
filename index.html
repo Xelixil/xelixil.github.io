@@ -71,17 +71,15 @@
         animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150">
       </a-cursor>
 
-      <!-- NEXT BUTTON -->
-      <a-entity id="nextBtn"
-                class="link"
-                position="0 -0.5 -2"
-                geometry="primitive: plane; height: 0.3; width: 0.6"
-                material="src: #btn5Img"
-                visible="false">
-      </a-entity>
-
     </a-entity>
   </a-entity>
+
+  <a-entity id="nextBtn"
+          class="link"
+          geometry="primitive: plane; height: 0.3; width: 0.6"
+          material="src: #btn5Img"
+          visible="false">
+</a-entity>
 
 </a-scene>
 
@@ -116,38 +114,61 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function placeNextButton() {
+  const camera = document.querySelector('[camera]');
+  const camObj = camera.object3D;
+
+  const direction = new THREE.Vector3();
+  camObj.getWorldDirection(direction);
+
+  const position = new THREE.Vector3();
+  camObj.getWorldPosition(position);
+
+  // place 2 units in front of camera
+  const distance = 2;
+  const newPos = position.clone().add(direction.multiplyScalar(distance));
+
+  nextBtn.setAttribute('position', newPos);
+
+  // make button face the camera
+  nextBtn.object3D.lookAt(position);
+}
+
   // ✅ ENTER PLANE MODE (FIXED)
   planeBtn.addEventListener('click', () => {
 
-    console.log("Plane mode activated");
+  inPlaneMode = true;
+  step = 0;
 
-    inPlaneMode = true;
-    step = 0;
+  sky.setAttribute('visible', false);
+  planeSky.setAttribute('visible', true);
+  plane.setAttribute('visible', true);
 
-    sky.setAttribute('visible', false);
-    planeSky.setAttribute('visible', true);
-    plane.setAttribute('visible', true);
+  ui.setAttribute('visible', false);
+  nextBtn.setAttribute('visible', true);
 
-    ui.setAttribute('visible', false);
-    nextBtn.setAttribute('visible', true);
+  moveRig(steps[0]);
 
-    moveRig(steps[0]);
-  });
+  setTimeout(placeNextButton, 850); // after movement
+});
 
   // NEXT BUTTON
   nextBtn.addEventListener('click', () => {
 
-    if (!inPlaneMode) return;
+  if (!inPlaneMode) return;
 
-    step++;
+  step++;
 
-    if (step < steps.length) {
-      moveRig(steps[step]);
-    } else {
-      nextBtn.setAttribute('visible', false);
-    }
+  if (step < steps.length) {
+    moveRig(steps[step]);
 
-  });
+    setTimeout(placeNextButton, 850); // reposition after move
+
+  } else {
+    nextBtn.setAttribute('visible', false);
+  }
+
+});
 
   // ONLY 360 BUTTONS (exclude planeBtn & nextBtn)
   document.querySelectorAll('#b1, #b2, #b3').forEach(el => {
