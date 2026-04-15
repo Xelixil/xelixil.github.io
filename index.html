@@ -11,12 +11,10 @@
   <!-- Components -->
   <script src="https://unpkg.com/aframe-template-component@3.x.x/dist/aframe-template-component.min.js"></script>
   <script src="https://unpkg.com/aframe-layout-component@4.x.x/dist/aframe-layout-component.min.js"></script>
-  <script src="https://unpkg.com/aframe-event-set-component@5.x.x/dist/aframe-event-set-component.min.js"></script>
+  <script src="https://unpkg.com/aframe-event-set-component@5.x.x/dist/aframe-event-set_component.min.js"></script>
   <script src="https://unpkg.com/aframe-proxy-event-component@2.1.0/dist/aframe-proxy-event-component.min.js"></script>
 
-  
-
-  <!-- Template for clickable image links -->
+  <!-- Template -->
   <script id="link" type="text/html">
     <a-entity
       class="link"
@@ -36,49 +34,37 @@
 
     <!-- Assets -->
     <a-assets>
-      <!-- Panorama images -->
       <img id="howls" src="Pictures/howls.png">
       <img id="cottage" src="Pictures/cottage.png">
       <img id="roof" src="Pictures/roof.png">
 
-      <!-- Button thumbnails -->
       <img id="btn1" src="Pictures/Button1.png">
       <img id="btn2" src="Pictures/Button2.png">
       <img id="btn3" src="Pictures/Button3.png">
       <img id="btn4" src="Pictures/Button4.png">
 
-      <!-- Click sound -->
+      <!-- Plane model -->
+      <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
+
       <audio id="click-sound"
              src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
     </a-assets>
 
-    <!-- 360° Gallery Sky -->
-    <a-sky
-      id="image-360"
-      radius="10"
-      src="#howls"
-      animation__fade="property: components.material.material.color;
-                       type: color;
-                       from: #FFF;
-                       to: #000;
-                       dur: 300;
-                       startEvents: fade"
-      animation__fadeback="property: components.material.material.color;
-                           type: color;
-                           from: #000;
-                           to: #FFF;
-                           dur: 300;
-                           startEvents: animationcomplete__fade">
-    </a-sky>
+    <!-- Gallery Sky -->
+    <a-sky id="image-360" radius="10" src="#howls"></a-sky>
 
-    <!-- Airplane Scene Sky (hidden at start) -->
-    <a-sky id="plane-sky"
-       visible="false"
-       radius="10"
-       color="#87CEEB">
-</a-sky>
+    <!-- Plane Sky -->
+    <a-sky id="plane-sky" visible="false" radius="10" color="#87CEEB"></a-sky>
 
-    <!-- Image Buttons -->
+    <!-- Plane Model (hidden at start) -->
+    <a-entity id="plane"
+              gltf-model="#planeModel"
+              position="0 1 -3"
+              scale="0.5 0.5 0.5"
+              visible="false">
+    </a-entity>
+
+    <!-- Buttons -->
     <a-entity id="links"
               layout="type: line; margin: 1.5"
               position="-2.25 -1 -4">
@@ -95,7 +81,6 @@
                 data-src="#roof"
                 data-thumb="#btn3"></a-entity>
 
-      <!-- Button 4 (Custom Behavior) -->
       <a-entity id="btn4-entity"
                 class="link"
                 geometry="primitive: plane; height: 1; width: 1"
@@ -110,20 +95,8 @@
     <!-- Camera -->
     <a-entity camera look-controls>
       <a-cursor
-        id="cursor"
         raycaster="objects: .link"
-        animation__click="property: scale;
-                          startEvents: click;
-                          from: 0.1 0.1 0.1;
-                          to: 1 1 1;
-                          dur: 150"
-        animation__fusing="property: scale;
-                           startEvents: fusing;
-                           from: 1 1 1;
-                           to: 0.1 0.1 0.1;
-                           dur: 1500"
-        event-set__mouseenter="_event: mouseenter; color: springgreen"
-        event-set__mouseleave="_event: mouseleave; color: black">
+        animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150">
       </a-cursor>
     </a-entity>
 
@@ -131,16 +104,29 @@
 
   <!-- Script -->
   <script>
-    const btn4 = document.querySelector('#btn4-entity');
-    const sky360 = document.querySelector('#image-360');
-    const planeSky = document.querySelector('#plane-sky');
+    window.addEventListener('DOMContentLoaded', () => {
 
-    btn4.addEventListener('click', () => {
-      // Hide gallery
-      sky360.setAttribute('visible', false);
+      const btn4 = document.querySelector('#btn4-entity');
+      const sky360 = document.querySelector('#image-360');
+      const planeSky = document.querySelector('#plane-sky');
+      const links = document.querySelector('#links');
+      const plane = document.querySelector('#plane');
 
-      // Show airplane scene
-      planeSky.setAttribute('visible', true);
+      btn4.addEventListener('click', () => {
+
+        // Hide gallery
+        sky360.setAttribute('visible', false);
+
+        // Hide buttons
+        links.setAttribute('visible', false);
+
+        // Show plane scene
+        planeSky.setAttribute('visible', true);
+
+        // Show plane model
+        plane.setAttribute('visible', true);
+      });
+
     });
   </script>
 
