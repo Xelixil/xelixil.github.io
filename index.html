@@ -5,160 +5,151 @@
   <title>360 Project Showcase</title>
 
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-
-  <script src="https://unpkg.com/aframe-template-component@3.x.x/dist/aframe-template-component.min.js"></script>
-  <script src="https://unpkg.com/aframe-layout-component@4.x.x/dist/aframe-layout-component.min.js"></script>
-  <script src="https://unpkg.com/aframe-event-set-component@5.x.x/dist/aframe-event-set-component.min.js"></script>
-  <script src="https://unpkg.com/aframe-proxy-event-component@2.1.0/dist/aframe-proxy-event-component.min.js"></script>
 </head>
 
 <body>
-  <a-scene>
+<a-scene>
 
-    <!-- Assets -->
-    <a-assets timeout="10000">
+  <!-- ASSETS -->
+  <a-assets>
+    <img id="howls" src="Pictures/howls.png">
+    <img id="cottage" src="Pictures/cottage.png">
+    <img id="roof" src="Pictures/roof.png">
 
-      <img id="howls" src="Pictures/howls.png">
-      <img id="cottage" src="Pictures/cottage.png">
-      <img id="roof" src="Pictures/roof.png">
+    <img id="btn1" src="Pictures/Button1.png">
+    <img id="btn2" src="Pictures/Button2.png">
+    <img id="btn3" src="Pictures/Button3.png">
+    <img id="btn4" src="Pictures/Button4.png">
+    <img id="btn5" src="Pictures/Button5.png">
 
-      <img id="btn1" src="Pictures/Button1.png">
-      <img id="btn2" src="Pictures/Button2.png">
-      <img id="btn3" src="Pictures/Button3.png">
-      <img id="btn4" src="Pictures/Button4.png">
-      <img id="btn5" src="Pictures/Button5.png">
+    <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
 
-      <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
+    <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+  </a-assets>
 
-      <audio id="click-sound"
-             src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
-    </a-assets>
+  <!-- SKY (360 MODE) -->
+  <a-sky id="sky" src="#howls"></a-sky>
 
-    <!-- SKY -->
-    <a-sky id="image-360" radius="10" src="#howls"></a-sky>
+  <!-- SKY (PLANE MODE) -->
+  <a-sky id="planeSky"
+         visible="false"
+         color="#87CEEB">
+  </a-sky>
 
-    <a-sky id="plane-sky"
-           visible="false"
-           radius="30"
-           color="#87CEEB">
-    </a-sky>
+  <!-- PLANE -->
+  <a-entity id="plane"
+            gltf-model="#planeModel"
+            position="-6 -1 -6"
+            scale="0.5 0.5 0.5"
+            visible="false">
+  </a-entity>
 
-    <!-- CAMERA RIG (WE MOVE THIS) -->
-    <a-entity id="rig" position="0 1.6 0">
+  <!-- CAMERA RIG (MOVE THIS) -->
+  <a-entity id="rig" position="0 1.6 0">
+    <a-camera look-controls>
+      <a-cursor raycaster="objects: .clickable"></a-cursor>
+    </a-camera>
+  </a-entity>
 
-      <a-entity camera look-controls>
-        <a-cursor raycaster="objects: .link"></a-cursor>
-      </a-entity>
+  <!-- BUTTONS -->
+  <a-entity id="ui" position="-2 -1 -4">
 
-    </a-entity>
+    <!-- 360 buttons -->
+    <a-box class="clickable" id="b1" position="0 0 0" depth="0.1" height="1" width="1"
+           material="src: #btn1"></a-box>
 
-    <!-- PLANE -->
-    <a-entity id="plane"
-              gltf-model="#planeModel"
-              position="-6 -1 -6"
-              scale="0.5 0.5 0.5"
-              visible="false">
-    </a-entity>
+    <a-box class="clickable" id="b2" position="1.5 0 0" depth="0.1" height="1" width="1"
+           material="src: #btn2"></a-box>
 
-    <!-- BUTTONS -->
-    <a-entity id="links"
-              layout="type: line; margin: 1.5"
-              position="-2.25 -1 -4">
+    <a-box class="clickable" id="b3" position="3 0 0" depth="0.1" height="1" width="1"
+           material="src: #btn3"></a-box>
 
-      <a-entity class="link"
-                geometry="primitive: plane; height: 1; width: 1"
-                material="shader: flat; src: #btn1"
-                sound="on: click; src: #click-sound"></a-entity>
+    <!-- ENTER PLANE -->
+    <a-box class="clickable" id="btn4" position="4.5 0 0" depth="0.1" height="1" width="1"
+           material="src: #btn4"></a-box>
 
-      <a-entity class="link"
-                geometry="primitive: plane; height: 1; width: 1"
-                material="shader: flat; src: #btn2"
-                sound="on: click; src: #click-sound"></a-entity>
+    <!-- NEXT -->
+    <a-box class="clickable" id="btn5" position="6 0 0" depth="0.1" height="1" width="1"
+           material="src: #btn5"
+           visible="false"></a-box>
 
-      <a-entity class="link"
-                geometry="primitive: plane; height: 1; width: 1"
-                material="shader: flat; src: #btn3"
-                sound="on: click; src: #click-sound"></a-entity>
+  </a-entity>
 
-      <!-- Button 4 (ENTER PLANE MODE) -->
-      <a-entity id="btn4"
-                class="link"
-                geometry="primitive: plane; height: 1; width: 1"
-                material="shader: flat; src: #btn4"
-                sound="on: click; src: #click-sound">
-      </a-entity>
+</a-scene>
 
-      <!-- Button 5 (NEXT STEP) -->
-      <a-entity id="btn5"
-                class="link"
-                geometry="primitive: plane; height: 1; width: 1"
-                material="shader: flat; src: #btn5"
-                visible="false"
-                sound="on: click; src: #click-sound">
-      </a-entity>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
 
-    </a-entity>
+  const sky = document.querySelector('#sky');
+  const planeSky = document.querySelector('#planeSky');
+  const plane = document.querySelector('#plane');
 
-    <!-- SCRIPT -->
-    <script>
-      window.addEventListener('DOMContentLoaded', () => {
+  const ui = document.querySelector('#ui');
 
-        const rig = document.querySelector('#rig');
-        const plane = document.querySelector('#plane');
-        const sky = document.querySelector('#image-360');
-        const planeSky = document.querySelector('#plane-sky');
+  const rig = document.querySelector('#rig');
 
-        const links = document.querySelector('#links');
-        const btn4 = document.querySelector('#btn4');
-        const btn5 = document.querySelector('#btn5');
+  const btn4 = document.querySelector('#btn4');
+  const btn5 = document.querySelector('#btn5');
 
-        let step = 0;
+  let step = 0;
 
-        const steps = [
-          { x: -6, y: 1.6, z: -4 }, // entrance
-          { x: -5, y: 1.6, z: -6 }, // seat
-          { x: -6, y: 2.0, z: -7 }  // final
-        ];
+  const steps = [
+    { x: -6, y: 1.6, z: -4 },
+    { x: -5, y: 1.6, z: -6 },
+    { x: -6, y: 2.0, z: -7 }
+  ];
 
-        function moveRig(pos) {
-          rig.setAttribute('animation', {
-            property: 'position',
-            to: pos,
-            dur: 800,
-            easing: 'easeInOutQuad'
-          });
+  function moveRig(pos) {
+    rig.setAttribute('animation', {
+      property: 'position',
+      to: pos,
+      dur: 800,
+      easing: 'easeInOutQuad'
+    });
+  }
+
+  // CLICK DETECTION (GLOBAL FIX)
+  document.querySelectorAll('.clickable').forEach(el => {
+    el.addEventListener('click', (e) => {
+
+      const id = el.id;
+
+      // ENTER PLANE MODE
+      if (id === 'btn4') {
+
+        sky.setAttribute('visible', false);
+        planeSky.setAttribute('visible', true);
+
+        plane.setAttribute('visible', true);
+        ui.setAttribute('visible', false);
+
+        btn5.setAttribute('visible', true);
+
+        moveRig(steps[0]);
+      }
+
+      // NEXT STEP
+      if (id === 'btn5') {
+
+        step++;
+
+        if (step < steps.length) {
+          moveRig(steps[step]);
+        } else {
+          btn5.setAttribute('visible', false);
         }
+      }
 
-        // ENTER PLANE MODE
-        btn4.addEventListener('click', () => {
+      // 360 IMAGE SWITCHING
+      if (id === 'b1') sky.setAttribute('src', '#howls');
+      if (id === 'b2') sky.setAttribute('src', '#cottage');
+      if (id === 'b3') sky.setAttribute('src', '#roof');
 
-          sky.setAttribute('visible', false);
-          links.setAttribute('visible', false);
+    });
+  });
 
-          planeSky.setAttribute('visible', true);
-          plane.setAttribute('visible', true);
+});
+</script>
 
-          btn5.setAttribute('visible', true);
-
-          moveRig(steps[0]);
-        });
-
-        // NEXT BUTTON
-        btn5.addEventListener('click', () => {
-
-          step++;
-
-          if (step < steps.length) {
-            moveRig(steps[step]);
-          } else {
-            btn5.setAttribute('visible', false);
-          }
-
-        });
-
-      });
-    </script>
-
-  </a-scene>
 </body>
 </html>
