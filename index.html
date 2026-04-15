@@ -15,18 +15,17 @@
     <img id="cottage" src="Pictures/cottage.png">
     <img id="roof" src="Pictures/roof.png">
 
-    <img id="btn1" src="Pictures/Button1.png">
-    <img id="btn2" src="Pictures/Button2.png">
-    <img id="btn3" src="Pictures/Button3.png">
-    <img id="btn4" src="Pictures/Button4.png">
-    <img id="btn5" src="Pictures/Button5.png">
+    <img id="btn1Img" src="Pictures/Button1.png">
+    <img id="btn2Img" src="Pictures/Button2.png">
+    <img id="btn3Img" src="Pictures/Button3.png">
+    <img id="btn4Img" src="Pictures/Button4.png">
+    <img id="btn5Img" src="Pictures/Button5.png">
 
     <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
   </a-assets>
 
   <!-- SKY -->
   <a-sky id="sky" src="#howls"></a-sky>
-
   <a-sky id="planeSky" visible="false" color="#87CEEB"></a-sky>
 
   <!-- PLANE -->
@@ -40,59 +39,48 @@
   <!-- UI BUTTONS -->
   <a-entity id="ui" position="-2 -1 -4">
 
-    <a-box class="link" id="b1" position="0 0 0"
+    <a-box class="link" id="b1"
+           position="0 0 0"
            depth="0.1" height="1" width="1"
-           material="src: #btn1"></a-box>
+           material="src: #btn1Img"></a-box>
 
-    <a-box class="link" id="b2" position="1.5 0 0"
+    <a-box class="link" id="b2"
+           position="1.5 0 0"
            depth="0.1" height="1" width="1"
-           material="src: #btn2"></a-box>
+           material="src: #btn2Img"></a-box>
 
-    <a-box class="link" id="b3" position="3 0 0"
+    <a-box class="link" id="b3"
+           position="3 0 0"
            depth="0.1" height="1" width="1"
-           material="src: #btn3"></a-box>
+           material="src: #btn3Img"></a-box>
 
-    <a-box class="link"
-       id="btn4"
-       position="4.5 0 0"
-       depth="0.1"
-       height="1.2"
-       width="1.2"
-       material="src: #btn4"
-       scale="1.2 1.2 1.2">
-</a-box>
+    <!-- FIXED ID -->
+    <a-box class="link" id="planeBtn"
+           position="4.5 0 0"
+           depth="0.1" height="1" width="1"
+           material="src: #btn4Img"></a-box>
 
   </a-entity>
 
-  <!-- CAMERA + YOUR ORIGINAL CURSOR -->
-  <a-entity camera look-controls>
+  <!-- CAMERA -->
+  <a-entity id="rig">
+    <a-entity camera look-controls>
 
-    <a-cursor
-      id="cursor"
-      animation__click="property: scale;
-                        startEvents: click;
-                        from: 0.1 0.1 0.1;
-                        to: 1 1 1;
-                        dur: 150"
-      animation__fusing="property: fusing;
-                         startEvents: fusing;
-                         from: 1 1 1;
-                         to: 0.1 1 1;
-                         dur: 1500"
-      event-set__mouseenter="_event: mouseenter; color: springgreen"
-      event-set__mouseleave="_event: mouseleave; color: black"
-      raycaster="objects: .link">
-    </a-cursor>
+      <a-cursor
+        raycaster="objects: .link"
+        animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150">
+      </a-cursor>
 
-    <!-- NEXT BUTTON (IN WORLD, NOT BLOCKING VIEW) -->
-    <a-entity id="nextBtn"
-              class="link"
-              position="0 -0.5 -2"
-              geometry="primitive: plane; height: 0.3; width: 0.6"
-              material="src: #btn5"
-              visible="false">
+      <!-- NEXT BUTTON -->
+      <a-entity id="nextBtn"
+                class="link"
+                position="0 -0.5 -2"
+                geometry="primitive: plane; height: 0.3; width: 0.6"
+                material="src: #btn5Img"
+                visible="false">
+      </a-entity>
+
     </a-entity>
-
   </a-entity>
 
 </a-scene>
@@ -105,8 +93,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const plane = document.querySelector('#plane');
   const ui = document.querySelector('#ui');
 
-  const btn4 = document.querySelector('#btn4');
+  const planeBtn = document.querySelector('#planeBtn'); // FIXED
   const nextBtn = document.querySelector('#nextBtn');
+  const rig = document.querySelector('#rig');
 
   let inPlaneMode = false;
   let step = 0;
@@ -118,8 +107,6 @@ window.addEventListener('DOMContentLoaded', () => {
     { x: -3, y: 1.6, z: -8 }
   ];
 
-  const rig = document.querySelector('[camera]').parentElement;
-
   function moveRig(pos) {
     rig.setAttribute('animation', {
       property: 'position',
@@ -129,8 +116,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ENTER PLANE MODE
-  btn4.addEventListener('click', () => {
+  // ✅ ENTER PLANE MODE (FIXED)
+  planeBtn.addEventListener('click', () => {
+
+    console.log("Plane mode activated");
 
     inPlaneMode = true;
     step = 0;
@@ -138,14 +127,14 @@ window.addEventListener('DOMContentLoaded', () => {
     sky.setAttribute('visible', false);
     planeSky.setAttribute('visible', true);
     plane.setAttribute('visible', true);
-    ui.setAttribute('visible', false);
 
+    ui.setAttribute('visible', false);
     nextBtn.setAttribute('visible', true);
 
     moveRig(steps[0]);
   });
 
-  // NEXT STEP
+  // NEXT BUTTON
   nextBtn.addEventListener('click', () => {
 
     if (!inPlaneMode) return;
@@ -160,8 +149,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   });
 
-  // 360 BUTTONS
-  document.querySelectorAll('.link').forEach(el => {
+  // ONLY 360 BUTTONS (exclude planeBtn & nextBtn)
+  document.querySelectorAll('#b1, #b2, #b3').forEach(el => {
     el.addEventListener('click', () => {
 
       if (el.id === 'b1') sky.setAttribute('src', '#howls');
