@@ -151,10 +151,22 @@ planeLoaded = true;
 });
 
 const steps = [
-{ x: 50, y: 3, z: 40, rotY: 0 },
-{ x: 0, y: 0.4, z: 27, rotY: 180 },
-{ x: 0, y: 0.4, z: 9.4, rotY: -90 },
-{ x: 3, y: -0.3, z: 9.4, rotY: 90 },
+{
+  x: 50, y: 3, z: 40, rotY: -90,
+  btn: { x: 52, y: 2.5, z: 38, rotY: 180 }
+},
+{
+  x: 0, y: 0.4, z: 27, rotY: 180,
+  btn: { x: 0, y: 0.2, z: 29, rotY: 0 }
+},
+{
+  x: 0, y: 0.4, z: 9.4, rotY: -90,
+  btn: { x: -2, y: 0.2, z: 9.4, rotY: 0 }
+},
+{
+  x: 3, y: -0.3, z: 9.4, rotY: 0,
+  btn: { x: 5, y: -0.5, z: 9.4, rotY: 0 }
+},
 ];
 
 function moveRig(pos){
@@ -173,37 +185,12 @@ easing:'easeInOutQuad'
 });
 }
 
-function placeNextButton(){
+function placeNextButton(stepIndex){
 
-const camera = document.querySelector('[camera]');
-const camObj = camera.object3D;
+  const btnData = steps[stepIndex].btn;
 
-const position = new THREE.Vector3();
-camObj.getWorldPosition(position);
-
-const rotY = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
-
-// ✅ FIXED FORWARD VECTOR
-const forward = new THREE.Vector3(
-Math.sin(rotY),
-0,
-Math.cos(rotY)
-);
-
-const left = new THREE.Vector3(-forward.z,0,forward.x);
-
-const newPos = position
-.clone()
-.add(forward.multiplyScalar(2.5))
-.add(left.multiplyScalar(0.8));
-
-newPos.y = position.y - 0.3;
-
-nextBtn.setAttribute('position',newPos);
-
-nextBtn.object3D.lookAt(
-new THREE.Vector3(position.x,newPos.y,position.z)
-);
+  nextBtn.setAttribute('position', `${btnData.x} ${btnData.y} ${btnData.z}`);
+  nextBtn.setAttribute('rotation', `0 ${btnData.rotY} 0`);
 
 }
 
@@ -236,7 +223,7 @@ return;
 plane.setAttribute('visible',true);
 
 moveRig(steps[0]);
-setTimeout(placeNextButton,850);
+setTimeout(() => placeNextButton(0), 850);
 
 }
 
@@ -270,7 +257,7 @@ step++;
 
 if(step < steps.length){
 moveRig(steps[step]);
-setTimeout(placeNextButton,850);
+setTimeout(() => placeNextButton(step), 850);
 }else{
 nextBtn.setAttribute('visible',false);
 startTakeoff();
