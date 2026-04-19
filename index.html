@@ -367,21 +367,43 @@ camObj.getWorldPosition(position);
 
 const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
 
-// 👉 CONTROL THESE VALUES
-const angleOffset = THREE.MathUtils.degToRad(0); // 0 = in front
-const radius = 2.5;
+// 👉 MAIN CONTROLS
+const angleOffset = THREE.MathUtils.degToRad(0);
+const radius = 3.5;
+const sideOffset = 0.8; // adjust this to move right/left
 
 const finalAngle = baseRot + angleOffset;
 
-const x = position.x + Math.sin(finalAngle) * radius;
-const z = position.z + Math.cos(finalAngle) * radius;
-const y = position.y - 0.8;
+// Base circular position
+let x = position.x + Math.sin(finalAngle) * radius;
+let z = position.z + Math.cos(finalAngle) * radius;
+let y = position.y - 0.6;
 
-ui.setAttribute('position', `${x} ${y} ${z}`);
+// Forward push (prevents clipping into plane)
+const forward = new THREE.Vector3(
+  Math.sin(baseRot),
+  0,
+  Math.cos(baseRot)
+);
 
-// Always face player
+let finalPos = new THREE.Vector3(x, y, z)
+  .add(forward.multiplyScalar(1.5));
+
+// Side adjustment (fine control)
+const right = new THREE.Vector3(
+  Math.cos(baseRot),
+  0,
+  -Math.sin(baseRot)
+);
+
+finalPos.add(right.multiplyScalar(sideOffset));
+
+// Apply position
+ui.setAttribute('position', `${finalPos.x} ${finalPos.y} ${finalPos.z}`);
+
+// Face player
 ui.object3D.lookAt(
-  new THREE.Vector3(position.x, y, position.z)
+  new THREE.Vector3(position.x, finalPos.y, position.z)
 );
 
 ui.setAttribute('visible', true);
