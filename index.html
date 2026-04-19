@@ -157,6 +157,18 @@ const steps = [
 { x: 3, y: -0.3, z: 9.4, rotY: -90, btnAngle: 0 },
 ];
 
+
+function getHeightOffset(){
+  const scene = document.querySelector('a-scene');
+
+  // If NOT in VR → add height
+  if(!scene.is('vr-mode')){
+    return 2.0; // 1 meter boost for desktop
+  }
+
+  return 0;
+}
+
 function moveRig(pos){
 rig.setAttribute('animation__pos',{
 property:'position',
@@ -171,17 +183,6 @@ to:`0 ${pos.rotY} 0`,
 dur:800,
 easing:'easeInOutQuad'
 });
-}
-
-function getHeightOffset(){
-  const scene = document.querySelector('a-scene');
-
-  // If NOT in VR → add height
-  if(!scene.is('vr-mode')){
-    return 1.0; // 1 meter boost for desktop
-  }
-
-  return 0;
 }
 
 function placeNextButton(stepIndex){
