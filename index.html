@@ -31,22 +31,12 @@
 </a-assets>
 
 
-<!-- NORMAL SKY -->
+<!-- SKY -->
 <a-sky id="sky" src="#howls"></a-sky>
 
-<!-- SKY1 -->
-<a-sky id="planeSky"
-src="#skyPlaneImg"
-material="opacity:1"
-visible="false">
-</a-sky>
+<a-sky id="planeSky" src="#skyPlaneImg" visible="false"></a-sky>
+<a-sky id="planeSky2" src="#sky2Img" visible="false"></a-sky>
 
-<!-- SKY2 -->
-<a-sky id="planeSky2"
-src="#sky2Img"
-material="opacity:0"
-visible="false">
-</a-sky>
 
 <!-- GROUND -->
 <a-plane id="ground"
@@ -58,6 +48,7 @@ material="src:#groundTex; repeat:100 100; shader:standard; roughness:1; metalnes
 visible="false">
 </a-plane>
 
+
 <!-- PLANE -->
 <a-entity id="plane"
 gltf-model="#planeModel"
@@ -66,43 +57,42 @@ scale="2 2 2"
 visible="false">
 </a-entity>
 
-<!-- UI BUTTONS -->
-<a-entity id="ui" visible="true">
+
+<!-- UI -->
+<a-entity id="ui">
 
 <a-box class="link" id="b1"
-position="0 0 0"
 depth="0.1" height="1" width="1"
-material="src:#btn1Img"></a-box>
+material="src:#btn1Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
 
 <a-box class="link" id="b2"
 position="1.5 0 0"
 depth="0.1" height="1" width="1"
-material="src:#btn2Img"></a-box>
+material="src:#btn2Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
 
 <a-box class="link" id="b3"
 position="3 0 0"
 depth="0.1" height="1" width="1"
-material="src:#btn3Img"></a-box>
+material="src:#btn3Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
 
 <a-box class="link" id="planeBtn"
 position="4.5 0 0"
 depth="0.1" height="1" width="1"
-material="src:#btn4Img"></a-box>
+material="src:#btn4Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
 
 </a-entity>
+
 
 <!-- CAMERA -->
 <a-entity id="rig">
   <a-entity camera look-controls>
-
     <a-cursor
     raycaster="objects: .link"
     material="color:white; shader:flat; depthTest:false"
-    animation__click="property:scale; startEvents:click; from:0.1 0.1 0.1; to:1 1 1; dur:150">
-    </a-cursor>
-
+    ></a-cursor>
   </a-entity>
 </a-entity>
+
 
 <!-- NEXT BUTTON -->
 <a-entity id="nextBtn"
@@ -136,18 +126,15 @@ const rig = document.querySelector('#rig');
 let inPlaneMode = false;
 let step = 0;
 let planeLoaded = false;
-
 let takeoff = false;
 let groundSpeed = 0.08;
 
 
-// ✅ DESKTOP HEIGHT FUNCTION
+// ================= HEIGHT SYSTEM =================
 function getDesktopHeight(){
   return scene.is('vr-mode') ? 0 : 1.2;
 }
 
-
-// ✅ APPLY HEIGHT ON LOAD
 scene.addEventListener('loaded', () => {
   if(!scene.is('vr-mode')){
     rig.object3D.position.y = 1.6;
@@ -155,12 +142,13 @@ scene.addEventListener('loaded', () => {
 });
 
 
+// ================= PLANE LOAD =================
 plane.addEventListener('model-loaded', () => {
   planeLoaded = true;
 });
 
 
-// ✅ STEPS
+// ================= STEPS =================
 const steps = [
 { x: 50, y: 3, z: 40, rotY: 0, btnAngle: 220 },
 { x: 0, y: 0.4, z: 27, rotY: -90, btnAngle: 150 },
@@ -169,14 +157,13 @@ const steps = [
 ];
 
 
-// ✅ MOVE RIG (FIXED HEIGHT)
+// ================= MOVE RIG =================
 function moveRig(pos){
-
-const heightOffset = getDesktopHeight();
+const h = getDesktopHeight();
 
 rig.setAttribute('animation__pos',{
   property:'position',
-  to:`${pos.x} ${pos.y + heightOffset} ${pos.z}`,
+  to:`${pos.x} ${pos.y + h} ${pos.z}`,
   dur:800,
   easing:'easeInOutQuad'
 });
@@ -190,40 +177,45 @@ rig.setAttribute('animation__rot',{
 }
 
 
-// ✅ BUTTON PLACEMENT (ANGLE SYSTEM)
-function placeNextButton(stepIndex){
-
-const camera = document.querySelector('[camera]');
-const camObj = camera.object3D;
-
-const position = new THREE.Vector3();
-camObj.getWorldPosition(position);
-
-const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
-const offsetAngle = THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
-
-const finalAngle = baseRot + offsetAngle;
-
-const radius = 2.5;
-
-const x = position.x + Math.sin(finalAngle) * radius;
-const z = position.z + Math.cos(finalAngle) * radius;
-const y = position.y - 0.3;
-
-nextBtn.setAttribute('position', `${x} ${y} ${z}`);
-
-nextBtn.object3D.lookAt(
-  new THREE.Vector3(position.x, y, position.z)
-);
-
+// ================= FORCE UI ABOVE EVERYTHING =================
+function forceUIRenderOrder(el){
+  el.object3D.renderOrder = 9999;
 }
 
 
+// ================= NEXT BUTTON =================
+function placeNextButton(stepIndex){
+
+const cam = document.querySelector('[camera]').object3D;
+
+const pos = new THREE.Vector3();
+cam.getWorldPosition(pos);
+
+const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
+const offset = THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
+
+const angle = baseRot + offset;
+
+const radius = 2.8;
+
+// higher + forward + slight right
+const x = pos.x + Math.sin(angle) * radius + 0.3;
+const z = pos.z + Math.cos(angle) * radius;
+const y = pos.y - 0.1;
+
+nextBtn.setAttribute('position', `${x} ${y} ${z}`);
+
+nextBtn.object3D.lookAt(new THREE.Vector3(pos.x, y, pos.z));
+
+forceUIRenderOrder(nextBtn);
+}
+
+
+// ================= ENTER PLANE =================
 planeBtn.addEventListener('click', () => {
 resetPlaneMode();
 enterPlaneMode();
 });
-
 
 function enterPlaneMode(){
 
@@ -239,33 +231,26 @@ ui.setAttribute('visible',false);
 ground.setAttribute('visible',true);
 nextBtn.setAttribute('visible',true);
 
-function startWhenReady(){
-
-if(!planeLoaded){
-requestAnimationFrame(startWhenReady);
-return;
-}
+function wait(){
+if(!planeLoaded) return requestAnimationFrame(wait);
 
 plane.setAttribute('visible',true);
 
 moveRig(steps[0]);
 setTimeout(() => placeNextButton(0), 850);
-
 }
 
-startWhenReady();
+wait();
 }
 
 
+// ================= RESET =================
 function resetPlaneMode(){
 
 step = 0;
 takeoff = false;
 
 ground.object3D.position.set(0,-7,0);
-
-planeSky.setAttribute('material','opacity',1);
-planeSky2.setAttribute('material','opacity',0);
 
 planeSky.setAttribute('visible',false);
 planeSky2.setAttribute('visible',false);
@@ -276,33 +261,26 @@ plane.setAttribute('visible',false);
 nextBtn.setAttribute('visible',false);
 }
 
+
+// ================= EXIT PLANE =================
 function exitPlaneMode(){
 
 inPlaneMode = false;
-takeoff = false;
-step = 0;
 
-// Reset skies
 planeSky.setAttribute('visible', false);
 planeSky2.setAttribute('visible', false);
-
 sky.setAttribute('visible', true);
 
-// Reset ground + plane
 ground.setAttribute('visible', false);
 plane.setAttribute('visible', false);
 
-// Hide next button
 nextBtn.setAttribute('visible', false);
 
-// Reset ground position
-ground.object3D.position.set(0, -7, 0);
-
-// Show UI again properly
 spawnButtons();
 }
 
 
+// ================= NEXT =================
 nextBtn.addEventListener('click', () => {
 
 if(!inPlaneMode) return;
@@ -310,16 +288,17 @@ if(!inPlaneMode) return;
 step++;
 
 if(step < steps.length){
-moveRig(steps[step]);
-setTimeout(() => placeNextButton(step), 850);
+  moveRig(steps[step]);
+  setTimeout(() => placeNextButton(step), 850);
 }else{
-nextBtn.setAttribute('visible',false);
-startTakeoff();
+  nextBtn.setAttribute('visible',false);
+  startTakeoff();
 }
 
 });
 
 
+// ================= TAKEOFF =================
 function startTakeoff(){
 
 takeoff = true;
@@ -334,17 +313,8 @@ easing:'linear'
 },3000);
 
 setTimeout(()=>{
-planeSky.setAttribute('animation__fadeout',{
-property:'material.opacity',
-to:0,
-dur:8000
-});
-
-planeSky2.setAttribute('animation__fadein',{
-property:'material.opacity',
-to:1,
-dur:8000
-});
+planeSky.setAttribute('material','opacity',0);
+planeSky2.setAttribute('material','opacity',1);
 },7000);
 
 setTimeout(()=>{
@@ -356,61 +326,55 @@ inPlaneMode = false;
 }
 
 
-// ✅ UI SPAWN
+// ================= UI SPAWN (FIXED + CLEAN) =================
 function spawnButtons(){
 
-const camera = document.querySelector('[camera]');
-const camObj = camera.object3D;
+const cam = document.querySelector('[camera]').object3D;
 
-const position = new THREE.Vector3();
-camObj.getWorldPosition(position);
+const pos = new THREE.Vector3();
+cam.getWorldPosition(pos);
 
-const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
+const baseRot = rig.object3D.rotation.y * (Math.PI/180);
 
-// 👉 MAIN CONTROLS
-const angleOffset = THREE.MathUtils.degToRad(0);
-const radius = 3.5;
-const sideOffset = 0.8; // adjust this to move right/left
+// MAIN CONTROL
+const radius = 3.2;
+const forwardOffset = 1.8;
+const sideOffset = 1.0;
+const heightOffset = -0.3;
 
-const finalAngle = baseRot + angleOffset;
-
-// Base circular position
-let x = position.x + Math.sin(finalAngle) * radius;
-let z = position.z + Math.cos(finalAngle) * radius;
-let y = position.y - 0.6;
-
-// Forward push (prevents clipping into plane)
+// forward vector
 const forward = new THREE.Vector3(
   Math.sin(baseRot),
   0,
   Math.cos(baseRot)
 );
 
-let finalPos = new THREE.Vector3(x, y, z)
-  .add(forward.multiplyScalar(1.5));
-
-// Side adjustment (fine control)
+// right vector
 const right = new THREE.Vector3(
   Math.cos(baseRot),
   0,
   -Math.sin(baseRot)
 );
 
-finalPos.add(right.multiplyScalar(sideOffset));
+let x = pos.x + forward.x * radius + right.x * sideOffset;
+let z = pos.z + forward.z * radius + right.z * sideOffset;
+let y = pos.y + heightOffset;
 
-// Apply position
-ui.setAttribute('position', `${finalPos.x} ${finalPos.y} ${finalPos.z}`);
+// push forward so it never clips plane/model
+x += forward.x * forwardOffset;
+z += forward.z * forwardOffset;
 
-// Face player
-ui.object3D.lookAt(
-  new THREE.Vector3(position.x, finalPos.y, position.z)
-);
+ui.setAttribute('position', `${x} ${y} ${z}`);
+
+ui.object3D.lookAt(new THREE.Vector3(pos.x, y, pos.z));
+
+forceUIRenderOrder(ui);
 
 ui.setAttribute('visible', true);
 }
 
 
-// ✅ GROUND LOOP
+// ================= GROUND ANIMATION =================
 function animateGround(){
 if(takeoff){
 ground.object3D.position.z -= groundSpeed;
@@ -420,14 +384,12 @@ requestAnimationFrame(animateGround);
 animateGround();
 
 
-// ✅ SKY BUTTONS
+// ================= SKY BUTTONS =================
 document.querySelectorAll('#b1,#b2,#b3').forEach(el=>{
 el.addEventListener('click',()=>{
 
-// 🔥 FULL RESET FIRST
 exitPlaneMode();
 
-// THEN change sky
 if(el.id==='b1') sky.setAttribute('src','#howls');
 if(el.id==='b2') sky.setAttribute('src','#cottage');
 if(el.id==='b3') sky.setAttribute('src','#roof');
