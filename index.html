@@ -1,432 +1,325 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>360 + Plane VR</title>
-<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <meta charset="utf-8">
+    <title>360 + Plane VR - Fixed</title>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 </head>
 
 <body>
 <a-scene>
 
 <a-assets>
+    <img id="howls" src="Pictures/howls.png">
+    <img id="cottage" src="Pictures/cottage.png">
+    <img id="roof" src="Pictures/roof.png">
 
-<img id="howls" src="Pictures/howls.png">
-<img id="cottage" src="Pictures/cottage.png">
-<img id="roof" src="Pictures/roof.png">
+    <img id="btn1Img" src="Pictures/Button1.png">
+    <img id="btn2Img" src="Pictures/Button2.png">
+    <img id="btn3Img" src="Pictures/Button3.png">
+    <img id="btn4Img" src="Pictures/Button4.png">
+    <img id="btn5Img" src="Pictures/Button5.png">
 
-<img id="btn1Img" src="Pictures/Button1.png">
-<img id="btn2Img" src="Pictures/Button2.png">
-<img id="btn3Img" src="Pictures/Button3.png">
-<img id="btn4Img" src="Pictures/Button4.png">
-<img id="btn5Img" src="Pictures/Button5.png">
+    <img id="groundTex" src="Pictures/ground.png">
+    <img id="skyPlaneImg" src="Pictures/Sky1.png">
+    <img id="sky2Img" src="Pictures/Sky2.jpg">
 
-<img id="groundTex" src="Pictures/ground.png">
-
-<img id="skyPlaneImg" src="Pictures/Sky1.png">
-<img id="sky2Img" src="Pictures/Sky2.jpg">
-
-<a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
-
+    <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
 </a-assets>
 
+<a-sky id="sky" src="#howls" material="opacity: 1; transparent: true"></a-sky>
 
-<!-- SKY -->
-<a-sky id="sky" src="#howls"></a-sky>
+<a-sky id="planeSky" src="#skyPlaneImg" visible="false" material="opacity: 1; transparent: true"></a-sky>
 
-<a-sky id="planeSky" src="#skyPlaneImg" visible="false"></a-sky>
-<a-sky id="planeSky2" src="#sky2Img" visible="false"></a-sky>
+<a-sky id="planeSky2" src="#sky2Img" visible="false" material="opacity: 0; transparent: true"></a-sky>
 
 
-<!-- GROUND -->
 <a-plane id="ground"
-rotation="-90 0 0"
-width="200"
-height="200"
-position="0 -20 0"
-material="src:#groundTex; repeat:100 100; shader:standard; roughness:1; metalness:0"
-visible="false">
+    rotation="-90 0 0"
+    width="200"
+    height="200"
+    position="0 -20 0"
+    material="src:#groundTex; repeat:100 100; shader:standard; roughness:1; metalness:0"
+    visible="false">
 </a-plane>
 
 
-<!-- PLANE -->
 <a-entity id="plane"
-gltf-model="#planeModel"
-position="0 0 0"
-scale="2 2 2"
-visible="false">
+    gltf-model="#planeModel"
+    position="0 0 0"
+    scale="2 2 2"
+    visible="false">
 </a-entity>
 
 
-<!-- UI -->
-<a-entity id="ui">
-
-<a-box class="link" id="b1"
-depth="0.1" height="1" width="1"
-material="src:#btn1Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-
-<a-box class="link" id="b2"
-position="1.5 0 0"
-depth="0.1" height="1" width="1"
-material="src:#btn2Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-
-<a-box class="link" id="b3"
-position="3 0 0"
-depth="0.1" height="1" width="1"
-material="src:#btn3Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-
-<a-box class="link" id="planeBtn"
-position="4.5 0 0"
-depth="0.1" height="1" width="1"
-material="src:#btn4Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-
+<a-entity id="ui" visible="false">
+    <a-box class="link" id="b1" depth="0.1" height="1" width="1" material="src:#btn1Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
+    <a-box class="link" id="b2" position="1.5 0 0" depth="0.1" height="1" width="1" material="src:#btn2Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
+    <a-box class="link" id="b3" position="3 0 0" depth="0.1" height="1" width="1" material="src:#btn3Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
+    <a-box class="link" id="planeBtn" position="4.5 0 0" depth="0.1" height="1" width="1" material="src:#btn4Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
 </a-entity>
 
 
-<!-- CAMERA -->
 <a-entity id="rig">
-  <a-entity camera look-controls>
+  <a-entity camera look-controls id="main-cam">
     <a-cursor
-    raycaster="objects: .link"
-    material="color:white; shader:flat; depthTest:false"
+        raycaster="objects: .link"
+        material="color:white; shader:flat; depthTest:false"
     ></a-cursor>
   </a-entity>
 </a-entity>
 
 
-<!-- NEXT BUTTON -->
 <a-entity id="nextBtn"
-class="link"
-geometry="primitive:plane; height:0.35; width:0.7"
-material="src:#btn5Img; transparent:true; depthTest:false"
-visible="false">
+    class="link"
+    geometry="primitive:plane; height:0.35; width:0.7"
+    material="src:#btn5Img; transparent:true; depthTest:false"
+    visible="false">
 </a-entity>
 
 </a-scene>
 
 
 <script>
-
 window.addEventListener('DOMContentLoaded', () => {
 
-const scene = document.querySelector('a-scene');
+    const scene = document.querySelector('a-scene');
+    const sky = document.querySelector('#sky');
+    const planeSky = document.querySelector('#planeSky');
+    const planeSky2 = document.querySelector('#planeSky2');
+    const ground = document.querySelector('#ground');
+    const plane = document.querySelector('#plane');
+    const ui = document.querySelector('#ui');
+    const planeBtn = document.querySelector('#planeBtn');
+    const nextBtn = document.querySelector('#nextBtn');
+    const rig = document.querySelector('#rig');
+    const cam = document.querySelector('#main-cam');
 
-const sky = document.querySelector('#sky');
-const planeSky = document.querySelector('#planeSky');
-const planeSky2 = document.querySelector('#planeSky2');
+    let inPlaneMode = false;
+    let step = 0;
+    let planeLoaded = false;
+    let takeoff = false;
+    
+    let groundSpeed = 0.08;
 
-const ground = document.querySelector('#ground');
-const plane = document.querySelector('#plane');
-const ui = document.querySelector('#ui');
+    // Steps for the plane tour
+    const steps = [
+        { x: 50, y: 3, z: 40, rotY: 0, btnAngle: 220 },
+        { x: 0, y: 0.4, z: 27, rotY: -90, btnAngle: 150 },
+        { x: 0, y: 0.4, z: 9.4, rotY: -90, btnAngle: 50 },
+        { x: 3, y: -0.3, z: 9.4, rotY: -90, btnAngle: 0 },
+    ];
 
-const planeBtn = document.querySelector('#planeBtn');
-const nextBtn = document.querySelector('#nextBtn');
-const rig = document.querySelector('#rig');
+    // ================= INITIALIZATION =================
+    scene.addEventListener('loaded', () => {
+        if (!scene.is('vr-mode')) {
+            rig.object3D.position.y = 1.6;
+        }
 
-let inPlaneMode = false;
-let step = 0;
-let planeLoaded = false;
-let takeoff = false;
-let sceneReady = false;
+        // Delay spawning buttons slightly to ensure camera is oriented
+        setTimeout(() => {
+            spawnButtons();
+        }, 500);
+    });
 
-let groundSpeed = 0.08;
+    plane.addEventListener('model-loaded', () => {
+        planeLoaded = true;
+    });
 
+    // ================= UI PLACEMENT (FIXED FORWARD) =================
+    function spawnButtons() {
+        const rigPos = new THREE.Vector3();
+        rig.object3D.getWorldPosition(rigPos);
 
-// ================= READY CHECK =================
-scene.addEventListener('loaded', () => {
-  sceneReady = true;
+        // Standard A-Frame forward is -Z. 
+        // We calculate based on the current rig rotation
+        const baseRot = rig.object3D.rotation.y;
 
-  if(!scene.is('vr-mode')){
-    rig.object3D.position.y = 1.6;
-  }
+        // FIXED: Using -Math.sin and -Math.cos to ensure it spawns in front (-Z)
+        const forward = new THREE.Vector3(
+            -Math.sin(baseRot),
+            0,
+            -Math.cos(baseRot)
+        );
 
-  // IMPORTANT: first UI spawn MUST be delayed
-  setTimeout(() => {
-    spawnButtons();
-  }, 50);
-});
+        const radius = 4.0; 
+        const heightOffset = 0.8;
 
+        let x = rigPos.x + forward.x * radius;
+        let z = rigPos.z + forward.z * radius;
+        let y = rigPos.y + heightOffset;
 
-// ================= PLANE LOAD =================
-plane.addEventListener('model-loaded', () => {
-  planeLoaded = true;
-});
-
-
-// ================= STEPS =================
-const steps = [
-{ x: 50, y: 3, z: 40, rotY: 0, btnAngle: 220 },
-{ x: 0, y: 0.4, z: 27, rotY: -90, btnAngle: 150 },
-{ x: 0, y: 0.4, z: 9.4, rotY: -90, btnAngle: 50 },
-{ x: 3, y: -0.3, z: 9.4, rotY: -90, btnAngle: 0 },
-];
-
-
-// ================= HEIGHT =================
-function getDesktopHeight(){
-  return scene.is('vr-mode') ? 0 : 1.2;
-}
-
-
-// ================= MOVE RIG =================
-function moveRig(pos){
-
-const h = getDesktopHeight();
-
-rig.setAttribute('animation__pos',{
-  property:'position',
-  to:`${pos.x} ${pos.y + h} ${pos.z}`,
-  dur:800,
-  easing:'easeInOutQuad'
-});
-
-rig.setAttribute('animation__rot',{
-  property:'rotation',
-  to:`0 ${pos.rotY} 0`,
-  dur:800,
-  easing:'easeInOutQuad'
-});
-}
-
-
-// ================= SKY SAFETY SWITCH =================
-function setSky(type){
-
-// FORCE CLEAN STATE (prevents flicker bug)
-planeSky.setAttribute('visible', false);
-planeSky2.setAttribute('visible', false);
-sky.setAttribute('visible', false);
-
-if(type === 'normal'){
-  sky.setAttribute('visible', true);
-}
-
-if(type === 'plane'){
-  planeSky.setAttribute('visible', true);
-}
-
-if(type === 'plane2'){
-  planeSky2.setAttribute('visible', true);
-}
-}
-
-
-// ================= NEXT BUTTON =================
-function placeNextButton(stepIndex){
-
-const rigPos = new THREE.Vector3();
-rig.object3D.getWorldPosition(rigPos);
-
-const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
-const offset = THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
-
-const angle = baseRot + offset;
-
-const radius = 2.8;
-
-const x = rigPos.x + Math.sin(angle) * radius;
-const z = rigPos.z + Math.cos(angle) * radius;
-const y = rigPos.y + 0.2;
-
-nextBtn.setAttribute('position', `${x} ${y} ${z}`);
-
-nextBtn.object3D.lookAt(rigPos);
-
-// always on top
-nextBtn.object3D.renderOrder = 9999;
-}
-
-
-// ================= ENTER PLANE =================
-planeBtn.addEventListener('click', () => {
-resetPlaneMode();
-enterPlaneMode();
-});
-
-function enterPlaneMode(){
-
-inPlaneMode = true;
-step = 0;
-takeoff = false;
-
-setSky('plane');
-
-ui.setAttribute('visible',false);
-ground.setAttribute('visible',true);
-nextBtn.setAttribute('visible',true);
-
-// WAIT FOR CAMERA + FRAME STABILITY (IMPORTANT FIX)
-requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-
-    if(!planeLoaded) {
-      plane.addEventListener('model-loaded', () => {
-        plane.setAttribute('visible',true);
-        moveRig(steps[0]);
-        setTimeout(() => placeNextButton(0), 850);
-      });
-    } else {
-      plane.setAttribute('visible',true);
-      moveRig(steps[0]);
-      setTimeout(() => placeNextButton(0), 850);
+        ui.setAttribute('position', `${x} ${y} ${z}`);
+        ui.object3D.lookAt(rigPos.x, y, rigPos.z);
+        ui.setAttribute('visible', true);
     }
 
-  });
+    // ================= SKY LOGIC (FIXED GRADUAL) =================
+    function setSky(type) {
+        // Hide base skies
+        sky.setAttribute('visible', false);
+        planeSky.setAttribute('visible', false);
+        planeSky2.setAttribute('visible', false);
+
+        if (type === 'normal') sky.setAttribute('visible', true);
+        if (type === 'plane') planeSky.setAttribute('visible', true);
+        
+        if (type === 'plane2') {
+            // Smooth transition fix
+            planeSky.setAttribute('visible', true); // Keep Sky1 visible underneath
+            planeSky2.setAttribute('visible', true);
+            planeSky2.setAttribute('animation', {
+                property: 'components.material.material.opacity',
+                from: 0,
+                to: 1,
+                dur: 3000,
+                easing: 'linear'
+            });
+        }
+    }
+
+    // ================= NEXT BUTTON PLACEMENT =================
+    function placeNextButton(stepIndex) {
+        const rigPos = new THREE.Vector3();
+        rig.object3D.getWorldPosition(rigPos);
+
+        const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
+        const offset = THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
+        const angle = baseRot + offset;
+
+        const radius = 2.8;
+        const x = rigPos.x + Math.sin(angle) * radius;
+        const z = rigPos.z + Math.cos(angle) * radius;
+        const y = rigPos.y + 0.2;
+
+        nextBtn.setAttribute('position', `${x} ${y} ${z}`);
+        nextBtn.object3D.lookAt(rigPos);
+        nextBtn.object3D.renderOrder = 9999;
+    }
+
+    function moveRig(pos) {
+        const h = scene.is('vr-mode') ? 0 : 1.2;
+        rig.setAttribute('animation__pos', {
+            property: 'position',
+            to: `${pos.x} ${pos.y + h} ${pos.z}`,
+            dur: 800,
+            easing: 'easeInOutQuad'
+        });
+        rig.setAttribute('animation__rot', {
+            property: 'rotation',
+            to: `0 ${pos.rotY} 0`,
+            dur: 800,
+            easing: 'easeInOutQuad'
+        });
+    }
+
+    // ================= PLANE MODE CONTROLS =================
+    planeBtn.addEventListener('click', () => {
+        resetPlaneMode();
+        enterPlaneMode();
+    });
+
+    function enterPlaneMode() {
+        inPlaneMode = true;
+        step = 0;
+        takeoff = false;
+
+        setSky('plane');
+        ui.setAttribute('visible', false);
+        ground.setAttribute('visible', true);
+        nextBtn.setAttribute('visible', true);
+
+        const startSequence = () => {
+            plane.setAttribute('visible', true);
+            moveRig(steps[0]);
+            setTimeout(() => placeNextButton(0), 850);
+        };
+
+        if (!planeLoaded) {
+            plane.addEventListener('model-loaded', startSequence, { once: true });
+        } else {
+            startSequence();
+        }
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (!inPlaneMode) return;
+        step++;
+        if (step < steps.length) {
+            moveRig(steps[step]);
+            setTimeout(() => placeNextButton(step), 850);
+        } else {
+            nextBtn.setAttribute('visible', false);
+            startTakeoff();
+        }
+    });
+
+    function startTakeoff() {
+        takeoff = true;
+
+        // Ground drops away
+        setTimeout(() => {
+            ground.setAttribute('animation__drop', {
+                property: 'position',
+                to: `0 -120 -400`,
+                dur: 12000,
+                easing: 'linear'
+            });
+        }, 3000);
+
+        // FIXED: Gradual Sky Transition
+        setTimeout(() => {
+            setSky('plane2');
+        }, 7000);
+
+        // Sequence End
+        setTimeout(() => {
+            ground.setAttribute('visible', false);
+            // FIXED: Plane no longer disappears here! 
+            // Only disappears when spawnButtons (menu) is called or manually exited.
+            spawnButtons();
+            inPlaneMode = false;
+        }, 15000);
+    }
+
+    function resetPlaneMode() {
+        step = 0;
+        takeoff = false;
+        ground.object3D.position.set(0, -20, 0);
+        plane.setAttribute('visible', false);
+        nextBtn.setAttribute('visible', false);
+        planeSky2.setAttribute('material', 'opacity', 0); // Reset transition opacity
+        setSky('normal');
+    }
+
+    function exitPlaneMode() {
+        inPlaneMode = false;
+        plane.setAttribute('visible', false);
+        ground.setAttribute('visible', false);
+        nextBtn.setAttribute('visible', false);
+        setSky('normal');
+        spawnButtons();
+    }
+
+    // ================= ANIMATION LOOP =================
+    function animate() {
+        if (takeoff) {
+            ground.object3D.position.z -= groundSpeed;
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Skybox Selectors
+    document.querySelectorAll('#b1,#b2,#b3').forEach(el => {
+        el.addEventListener('click', () => {
+            exitPlaneMode();
+            if (el.id === 'b1') sky.setAttribute('src', '#howls');
+            if (el.id === 'b2') sky.setAttribute('src', '#cottage');
+            if (el.id === 'b3') sky.setAttribute('src', '#roof');
+        });
+    });
 });
-
-}
-
-
-// ================= RESET =================
-function resetPlaneMode(){
-
-step = 0;
-takeoff = false;
-
-ground.object3D.position.set(0,-7,0);
-
-plane.setAttribute('visible',false);
-nextBtn.setAttribute('visible',false);
-
-setSky('normal');
-}
-
-
-// ================= EXIT =================
-function exitPlaneMode(){
-
-inPlaneMode = false;
-
-plane.setAttribute('visible',false);
-ground.setAttribute('visible',false);
-nextBtn.setAttribute('visible',false);
-
-setSky('normal');
-
-spawnButtons();
-}
-
-
-// ================= NEXT =================
-nextBtn.addEventListener('click', () => {
-
-if(!inPlaneMode) return;
-
-step++;
-
-if(step < steps.length){
-  moveRig(steps[step]);
-  setTimeout(() => placeNextButton(step), 850);
-}else{
-  nextBtn.setAttribute('visible',false);
-  startTakeoff();
-}
-
-});
-
-
-// ================= TAKEOFF =================
-function startTakeoff(){
-
-takeoff = true;
-
-setTimeout(()=>{
-ground.setAttribute('animation__drop',{
-property:'position',
-to:`0 -120 -400`,
-dur:12000,
-easing:'linear'
-});
-},3000);
-
-setTimeout(()=>{
-setSky('plane2');
-},7000);
-
-setTimeout(()=>{
-ground.setAttribute('visible',false);
-plane.setAttribute('visible',false);
-spawnButtons();
-inPlaneMode = false;
-},15000);
-}
-
-
-// ================= FIXED SPAWN =================
-function spawnButtons(){
-
-const rigPos = new THREE.Vector3();
-rig.object3D.getWorldPosition(rigPos);
-
-const baseRot = rig.object3D.rotation.y;
-
-// stable forward/right vectors
-const forward = new THREE.Vector3(
-  Math.sin(baseRot),
-  0,
-  Math.cos(baseRot)
-);
-
-const right = new THREE.Vector3(
-  Math.cos(baseRot),
-  0,
-  -Math.sin(baseRot)
-);
-
-// CONFIG
-const radius = 3.2;
-const forwardOffset = 2.0;
-const sideOffset = 0.3;
-const heightOffset = 0.8;
-
-// base position
-let x = rigPos.x + forward.x * radius;
-let z = rigPos.z + forward.z * radius;
-
-// push forward (prevents floor + plane clipping)
-x += forward.x * forwardOffset;
-z += forward.z * forwardOffset;
-
-// slight right correction (fix left drift)
-x += right.x * sideOffset;
-z += right.z * sideOffset;
-
-let y = rigPos.y + heightOffset;
-
-ui.setAttribute('position', `${x} ${y} ${z}`);
-
-ui.object3D.lookAt(rigPos);
-ui.object3D.renderOrder = 9999;
-
-ui.setAttribute('visible', true);
-}
-
-
-// ================= GROUND =================
-function animateGround(){
-if(takeoff){
-ground.object3D.position.z -= groundSpeed;
-}
-requestAnimationFrame(animateGround);
-}
-animateGround();
-
-
-// ================= SKY BUTTONS =================
-document.querySelectorAll('#b1,#b2,#b3').forEach(el=>{
-el.addEventListener('click',()=>{
-
-exitPlaneMode();
-
-if(el.id==='b1') sky.setAttribute('src','#howls');
-if(el.id==='b2') sky.setAttribute('src','#cottage');
-if(el.id==='b3') sky.setAttribute('src','#roof');
-
-});
-});
-
-});
-
 </script>
 </body>
 </html>
