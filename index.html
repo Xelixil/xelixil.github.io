@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>360 VR - Guided Tour with Text</title>
+    <title>360 VR - Guided Plane Experience</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 </head>
 
@@ -62,10 +62,13 @@
 <a-text id="stepText"
     value=""
     align="center"
-    color="#FFFFFF"
-    width="4"
+    color="#FFF"
+    width="3"
+    wrap-count="30"
     font="https://cdn.aframe.io/fonts/DejaVu-sdf.fnt"
-    visible="false">
+    visible="false"
+    geometry="primitive: plane; width: 3.2; height: 1.2"
+    material="color: #000; opacity: 0.6; transparent: true; depthTest: false">
 </a-text>
 
 </a-scene>
@@ -82,7 +85,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const ui = document.querySelector('#ui');
     const planeBtn = document.querySelector('#planeBtn');
     const nextBtn = document.querySelector('#nextBtn');
-    const stepText = document.querySelector('#stepText'); // Text Reference
+    const stepText = document.querySelector('#stepText');
     const rig = document.querySelector('#rig');
 
     let inPlaneMode = false;
@@ -91,12 +94,24 @@ window.addEventListener('DOMContentLoaded', () => {
     let takeoff = false;
     let groundSpeed = 0.08;
 
-    // CUSTOMIZE YOUR TEXT HERE
+    // Adjusted angles (btnAngle) to ensure they are in front of the camera rotation (rotY)
     const steps = [
-        { x: 50, y: 3, z: 40, rotY: 0, btnAngle: 220, info: "Welcome Aboard! In this experience we'll let you experience your first Flight on a plane'" },
-        { x: 0, y: 0.4, z: 27, rotY: -90, btnAngle: 150, info: "You've now entered the Main Cabin. This is where the Flight attendants or Pilot will welcome you to the plane'" },
-        { x: 0, y: 0.4, z: 9.4, rotY: -90, btnAngle: 50, info: "We've walked to your seat. Don't forget to put your belongings to the Overhead Bin! Only small bags are allowed at your seat'" },
-        { x: 3, y: -0.3, z: 9.4, rotY: -90, btnAngle: 0, info: "You've reached your seat. Ready for takeoff? Watch as the scenery changes outside'" },
+        { 
+            x: 50, y: 3, z: 40, rotY: 0, btnAngle: 180, 
+            info: "In this experience we'll let you experience your first Flight on an Airplane! Click next to enter the plane" 
+        },
+        { 
+            x: 0, y: 0.4, z: 27, rotY: -90, btnAngle: 90, 
+            info: "Welcome Aboard! You've now entered the Main Cabin. This is where the Flight attendants or Pilot will welcome you to the plane" 
+        },
+        { 
+            x: 0, y: 0.4, z: 9.4, rotY: -90, btnAngle: 90, 
+            info: "We've walked to your seat. Don't forget to put your belongings to the Overhead Bin! Only small bags are allowed at your seat" 
+        },
+        { 
+            x: 3, y: -0.3, z: 9.4, rotY: -90, btnAngle: 90, 
+            info: "You've reached your seat. Ready for takeoff? Watch as the scenery changes outside" 
+        },
     ];
 
     // ================= INITIALIZATION =================
@@ -107,7 +122,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     plane.addEventListener('model-loaded', () => { planeLoaded = true; });
 
-    // ================= UI PLACEMENT (MENU) =================
+    // ================= UI MENU (MAIN) =================
     function spawnButtons() {
         const rigPos = new THREE.Vector3();
         rig.object3D.getWorldPosition(rigPos);
@@ -146,29 +161,37 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ================= GUIDED TEXT & BUTTON PLACEMENT =================
+    // ================= PLACING NEXT UI =================
     function placeNextButton(stepIndex) {
         const rigPos = new THREE.Vector3();
         rig.object3D.getWorldPosition(rigPos);
         
-        const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
-        const angle = baseRot + THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
-        const radius = 2.8;
+        // We use the rotY of the STEP to determine where "Forward" is
+        const stepRotRad = THREE.MathUtils.degToRad(steps[stepIndex].rotY);
+        const btnOffsetRad = THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
+        
+        // Combined angle
+        const finalAngle = stepRotRad + btnOffsetRad;
+        const radius = 2.5;
 
-        const x = rigPos.x + Math.sin(angle) * radius;
-        const z = rigPos.z + Math.cos(angle) * radius;
-        const y = rigPos.y + 0.2;
+        const x = rigPos.x + Math.sin(finalAngle) * radius;
+        const z = rigPos.z + Math.cos(finalAngle) * radius;
+        const y = rigPos.y + 0.1;
 
         // Position Button
         nextBtn.setAttribute('position', `${x} ${y} ${z}`);
         nextBtn.object3D.lookAt(rigPos.x, y, rigPos.z);
         nextBtn.setAttribute('visible', true);
 
-        // Position Text (0.5m above the button)
-        stepText.setAttribute('position', `${x} ${y + 0.5} ${z}`);
-        stepText.setAttribute('value', steps[stepIndex].info); // Change text content
-        stepText.object3D.lookAt(rigPos.x, y + 0.5, rigPos.z);
+        // Position Text (higher up)
+        stepText.setAttribute('position', `${x} ${y + 0.8} ${z}`);
+        stepText.setAttribute('value', steps[stepIndex].info);
+        stepText.object3D.lookAt(rigPos.x, y + 0.8, rigPos.z);
         stepText.setAttribute('visible', true);
+        
+        // Ensure UI stays on top of plane geometry
+        nextBtn.object3D.renderOrder = 9999;
+        stepText.object3D.renderOrder = 9999;
     }
 
     // ================= PLANE MODE =================
@@ -206,7 +229,7 @@ window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => placeNextButton(step), 850);
         } else {
             nextBtn.setAttribute('visible', false);
-            stepText.setAttribute('visible', false); // Hide text during takeoff
+            stepText.setAttribute('visible', false);
             startTakeoff();
         }
     });
@@ -250,6 +273,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     animate();
 
+    // Environment Selection
     document.querySelectorAll('#b1,#b2,#b3').forEach(el => {
         el.addEventListener('click', () => {
             inPlaneMode = false;
