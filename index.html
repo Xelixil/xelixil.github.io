@@ -34,7 +34,6 @@
 <!-- NORMAL SKY -->
 <a-sky id="sky" src="#howls"></a-sky>
 
-
 <!-- SKY1 -->
 <a-sky id="planeSky"
 src="#skyPlaneImg"
@@ -42,14 +41,12 @@ material="opacity:1"
 visible="false">
 </a-sky>
 
-
 <!-- SKY2 -->
 <a-sky id="planeSky2"
 src="#sky2Img"
 material="opacity:0"
 visible="false">
 </a-sky>
-
 
 <!-- GROUND -->
 <a-plane id="ground"
@@ -61,7 +58,6 @@ material="src:#groundTex; repeat:100 100; shader:standard; roughness:1; metalnes
 visible="false">
 </a-plane>
 
-
 <!-- PLANE -->
 <a-entity id="plane"
 gltf-model="#planeModel"
@@ -69,7 +65,6 @@ position="0 0 0"
 scale="2 2 2"
 visible="false">
 </a-entity>
-
 
 <!-- UI BUTTONS -->
 <a-entity id="ui" position="-2 -1 -4">
@@ -96,20 +91,18 @@ material="src:#btn4Img"></a-box>
 
 </a-entity>
 
-
 <!-- CAMERA -->
 <a-entity id="rig">
-<a-entity camera look-controls>
+  <a-entity camera look-controls>
 
-<a-cursor
-raycaster="objects: .link"
-material="color:white; shader:flat; depthTest:false"
-animation__click="property:scale; startEvents:click; from:0.1 0.1 0.1; to:1 1 1; dur:150">
-</a-cursor>
+    <a-cursor
+    raycaster="objects: .link"
+    material="color:white; shader:flat; depthTest:false"
+    animation__click="property:scale; startEvents:click; from:0.1 0.1 0.1; to:1 1 1; dur:150">
+    </a-cursor>
 
+  </a-entity>
 </a-entity>
-</a-entity>
-
 
 <!-- NEXT BUTTON -->
 <a-entity id="nextBtn"
@@ -122,10 +115,11 @@ visible="false">
 </a-scene>
 
 
-
 <script>
 
 window.addEventListener('DOMContentLoaded', () => {
+
+const scene = document.querySelector('a-scene');
 
 const sky = document.querySelector('#sky');
 const planeSky = document.querySelector('#planeSky');
@@ -146,10 +140,27 @@ let planeLoaded = false;
 let takeoff = false;
 let groundSpeed = 0.08;
 
-plane.addEventListener('model-loaded', () => {
-planeLoaded = true;
+
+// ✅ DESKTOP HEIGHT FUNCTION
+function getDesktopHeight(){
+  return scene.is('vr-mode') ? 0 : 1.6;
+}
+
+
+// ✅ APPLY HEIGHT ON LOAD
+scene.addEventListener('loaded', () => {
+  if(!scene.is('vr-mode')){
+    rig.object3D.position.y = 1.6;
+  }
 });
 
+
+plane.addEventListener('model-loaded', () => {
+  planeLoaded = true;
+});
+
+
+// ✅ STEPS
 const steps = [
 { x: 50, y: 3, z: 40, rotY: 0, btnAngle: 220 },
 { x: 0, y: 0.4, z: 27, rotY: -90, btnAngle: 150 },
@@ -158,72 +169,61 @@ const steps = [
 ];
 
 
-function getHeightOffset(){
-  const scene = document.querySelector('a-scene');
-
-  // If NOT in VR → add height
-  if(!scene.is('vr-mode')){
-    return 2.0; // 1 meter boost for desktop
-  }
-
-  return 0;
-}
-
+// ✅ MOVE RIG (FIXED HEIGHT)
 function moveRig(pos){
+
+const heightOffset = getDesktopHeight();
+
 rig.setAttribute('animation__pos',{
-property:'position',
-to:`${pos.x} ${pos.y} ${pos.z}`,
-dur:800,
-easing:'easeInOutQuad'
+  property:'position',
+  to:`${pos.x} ${pos.y + heightOffset} ${pos.z}`,
+  dur:800,
+  easing:'easeInOutQuad'
 });
 
 rig.setAttribute('animation__rot',{
-property:'rotation',
-to:`0 ${pos.rotY} 0`,
-dur:800,
-easing:'easeInOutQuad'
+  property:'rotation',
+  to:`0 ${pos.rotY} 0`,
+  dur:800,
+  easing:'easeInOutQuad'
 });
 }
 
+
+// ✅ BUTTON PLACEMENT (ANGLE SYSTEM)
 function placeNextButton(stepIndex){
 
 const camera = document.querySelector('[camera]');
 const camObj = camera.object3D;
 
-// Player position
 const position = new THREE.Vector3();
 camObj.getWorldPosition(position);
 
-// Player rotation (Y)
 const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
-
-// Your custom offset angle
 const offsetAngle = THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
 
-// Final angle
 const finalAngle = baseRot + offsetAngle;
 
-// Circle placement
 const radius = 2.5;
 
 const x = position.x + Math.sin(finalAngle) * radius;
 const z = position.z + Math.cos(finalAngle) * radius;
-const y = position.y + getHeightOffset() - 0.3;
+const y = position.y - 0.3;
 
-// Apply position
 nextBtn.setAttribute('position', `${x} ${y} ${z}`);
 
-// Always face player
 nextBtn.object3D.lookAt(
-new THREE.Vector3(position.x, y, position.z)
+  new THREE.Vector3(position.x, y, position.z)
 );
 
 }
+
 
 planeBtn.addEventListener('click', () => {
 resetPlaneMode();
 enterPlaneMode();
 });
+
 
 function enterPlaneMode(){
 
@@ -256,6 +256,7 @@ setTimeout(() => placeNextButton(0), 850);
 startWhenReady();
 }
 
+
 function resetPlaneMode(){
 
 step = 0;
@@ -275,6 +276,7 @@ plane.setAttribute('visible',false);
 nextBtn.setAttribute('visible',false);
 }
 
+
 nextBtn.addEventListener('click', () => {
 
 if(!inPlaneMode) return;
@@ -290,6 +292,7 @@ startTakeoff();
 }
 
 });
+
 
 function startTakeoff(){
 
@@ -326,6 +329,8 @@ inPlaneMode = false;
 },15000);
 }
 
+
+// ✅ UI SPAWN
 function spawnButtons(){
 
 const camera = document.querySelector('[camera]');
@@ -336,7 +341,6 @@ camObj.getWorldPosition(position);
 
 const rotY = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
 
-// ✅ FIXED FORWARD VECTOR
 const forward = new THREE.Vector3(
 Math.sin(rotY),
 0,
@@ -350,7 +354,7 @@ const newPos = position
 .add(forward.multiplyScalar(2.5))
 .add(left.multiplyScalar(1));
 
-newPos.y = position.y + getHeightOffset() - 0.8;
+newPos.y = position.y - 0.8;
 
 ui.setAttribute('position', newPos);
 
@@ -361,6 +365,8 @@ new THREE.Vector3(position.x, newPos.y, position.z)
 ui.setAttribute('visible', true);
 }
 
+
+// ✅ GROUND LOOP
 function animateGround(){
 if(takeoff){
 ground.object3D.position.z -= groundSpeed;
@@ -369,6 +375,8 @@ requestAnimationFrame(animateGround);
 }
 animateGround();
 
+
+// ✅ SKY BUTTONS
 document.querySelectorAll('#b1,#b2,#b3').forEach(el=>{
 el.addEventListener('click',()=>{
 if(el.id==='b1') sky.setAttribute('src','#howls');
