@@ -173,6 +173,17 @@ easing:'easeInOutQuad'
 });
 }
 
+function getHeightOffset(){
+  const scene = document.querySelector('a-scene');
+
+  // If NOT in VR → add height
+  if(!scene.is('vr-mode')){
+    return 1.0; // 1 meter boost for desktop
+  }
+
+  return 0;
+}
+
 function placeNextButton(stepIndex){
 
 const camera = document.querySelector('[camera]');
@@ -196,7 +207,7 @@ const radius = 2.5;
 
 const x = position.x + Math.sin(finalAngle) * radius;
 const z = position.z + Math.cos(finalAngle) * radius;
-const y = position.y - 0.3;
+const y = position.y + getHeightOffset() - 0.3;
 
 // Apply position
 nextBtn.setAttribute('position', `${x} ${y} ${z}`);
@@ -338,7 +349,7 @@ const newPos = position
 .add(forward.multiplyScalar(2.5))
 .add(left.multiplyScalar(1));
 
-newPos.y = position.y - 0.8;
+newPos.y = position.y + getHeightOffset() - 0.8;
 
 ui.setAttribute('position', newPos);
 
