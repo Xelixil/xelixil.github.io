@@ -127,18 +127,23 @@ let inPlaneMode = false;
 let step = 0;
 let planeLoaded = false;
 let takeoff = false;
+let sceneReady = false;
+
 let groundSpeed = 0.08;
 
 
-// ================= HEIGHT SYSTEM =================
-function getDesktopHeight(){
-  return scene.is('vr-mode') ? 0 : 1.2;
-}
-
+// ================= READY CHECK =================
 scene.addEventListener('loaded', () => {
+  sceneReady = true;
+
   if(!scene.is('vr-mode')){
     rig.object3D.position.y = 1.6;
   }
+
+  // IMPORTANT: first UI spawn MUST be delayed
+  setTimeout(() => {
+    spawnButtons();
+  }, 50);
 });
 
 
@@ -157,8 +162,15 @@ const steps = [
 ];
 
 
+// ================= HEIGHT =================
+function getDesktopHeight(){
+  return scene.is('vr-mode') ? 0 : 1.2;
+}
+
+
 // ================= MOVE RIG =================
 function moveRig(pos){
+
 const h = getDesktopHeight();
 
 rig.setAttribute('animation__pos',{
@@ -177,19 +189,33 @@ rig.setAttribute('animation__rot',{
 }
 
 
-// ================= FORCE UI ABOVE EVERYTHING =================
-function forceUIRenderOrder(el){
-  el.object3D.renderOrder = 9999;
+// ================= SKY SAFETY SWITCH =================
+function setSky(type){
+
+// FORCE CLEAN STATE (prevents flicker bug)
+planeSky.setAttribute('visible', false);
+planeSky2.setAttribute('visible', false);
+sky.setAttribute('visible', false);
+
+if(type === 'normal'){
+  sky.setAttribute('visible', true);
+}
+
+if(type === 'plane'){
+  planeSky.setAttribute('visible', true);
+}
+
+if(type === 'plane2'){
+  planeSky2.setAttribute('visible', true);
+}
 }
 
 
 // ================= NEXT BUTTON =================
 function placeNextButton(stepIndex){
 
-const cam = document.querySelector('[camera]').object3D;
-
-const pos = new THREE.Vector3();
-cam.getWorldPosition(pos);
+const rigPos = new THREE.Vector3();
+rig.object3D.getWorldPosition(rigPos);
 
 const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
 const offset = THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
@@ -198,16 +224,16 @@ const angle = baseRot + offset;
 
 const radius = 2.8;
 
-// higher + forward + slight right
-const x = pos.x + Math.sin(angle) * radius + 0.3;
-const z = pos.z + Math.cos(angle) * radius;
-const y = pos.y - 0.1;
+const x = rigPos.x + Math.sin(angle) * radius;
+const z = rigPos.z + Math.cos(angle) * radius;
+const y = rigPos.y + 0.2;
 
 nextBtn.setAttribute('position', `${x} ${y} ${z}`);
 
-nextBtn.object3D.lookAt(new THREE.Vector3(pos.x, y, pos.z));
+nextBtn.object3D.lookAt(rigPos);
 
-forceUIRenderOrder(nextBtn);
+// always on top
+nextBtn.object3D.renderOrder = 9999;
 }
 
 
@@ -223,27 +249,31 @@ inPlaneMode = true;
 step = 0;
 takeoff = false;
 
-// FORCE CLEAN SKY STATE
-sky.setAttribute('visible', false);
-planeSky2.setAttribute('visible', false);
-
-planeSky.setAttribute('material','opacity:1');
-planeSky.setAttribute('visible', true);
+setSky('plane');
 
 ui.setAttribute('visible',false);
 ground.setAttribute('visible',true);
 nextBtn.setAttribute('visible',true);
 
-function wait(){
-if(!planeLoaded) return requestAnimationFrame(wait);
+// WAIT FOR CAMERA + FRAME STABILITY (IMPORTANT FIX)
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
 
-plane.setAttribute('visible',true);
+    if(!planeLoaded) {
+      plane.addEventListener('model-loaded', () => {
+        plane.setAttribute('visible',true);
+        moveRig(steps[0]);
+        setTimeout(() => placeNextButton(0), 850);
+      });
+    } else {
+      plane.setAttribute('visible',true);
+      moveRig(steps[0]);
+      setTimeout(() => placeNextButton(0), 850);
+    }
 
-moveRig(steps[0]);
-setTimeout(() => placeNextButton(0), 850);
-}
+  });
+});
 
-wait();
 }
 
 
@@ -255,29 +285,23 @@ takeoff = false;
 
 ground.object3D.position.set(0,-7,0);
 
-planeSky.setAttribute('visible',false);
-planeSky2.setAttribute('visible',false);
-
-ground.setAttribute('visible',false);
 plane.setAttribute('visible',false);
-
 nextBtn.setAttribute('visible',false);
+
+setSky('normal');
 }
 
 
-// ================= EXIT PLANE =================
+// ================= EXIT =================
 function exitPlaneMode(){
 
 inPlaneMode = false;
 
-planeSky.setAttribute('visible', false);
-planeSky2.setAttribute('visible', false);
-sky.setAttribute('visible', true);
+plane.setAttribute('visible',false);
+ground.setAttribute('visible',false);
+nextBtn.setAttribute('visible',false);
 
-ground.setAttribute('visible', false);
-plane.setAttribute('visible', false);
-
-nextBtn.setAttribute('visible', false);
+setSky('normal');
 
 spawnButtons();
 }
@@ -316,45 +340,27 @@ easing:'linear'
 },3000);
 
 setTimeout(()=>{
-planeSky.setAttribute('material','opacity',0);
-planeSky2.setAttribute('material','opacity',1);
+setSky('plane2');
 },7000);
 
 setTimeout(()=>{
 ground.setAttribute('visible',false);
-planeSky.setAttribute('visible',false);
+plane.setAttribute('visible',false);
 spawnButtons();
 inPlaneMode = false;
 },15000);
 }
 
-function getPlayerPosition(){
-  const cam = document.querySelector('[camera]').object3D;
-  const rigPos = new THREE.Vector3();
-  rig.object3D.getWorldPosition(rigPos);
 
-  const camPos = new THREE.Vector3();
-  const pos = getPlayerPosition();
-
-  // fallback height safety (fixes floor spawning bug)
-  const y = Math.max(camPos.y, rigPos.y, 1.6);
-
-  return new THREE.Vector3(camPos.x, y, camPos.z);
-}
-
-// ================= UI SPAWN (FIXED + CLEAN) =================
+// ================= FIXED SPAWN =================
 function spawnButtons(){
 
-const pos = getPlayerPosition();
+const rigPos = new THREE.Vector3();
+rig.object3D.getWorldPosition(rigPos);
 
 const baseRot = rig.object3D.rotation.y;
 
-// CONFIG
-const radius = 3.2;
-const forwardOffset = 2.2;   // increased so it never clips plane
-const sideOffset = 0.4;      // reduced so it doesn't drift left
-const heightOffset = 0.6;    // FIX: keeps buttons above ground ALWAYS
-
+// stable forward/right vectors
 const forward = new THREE.Vector3(
   Math.sin(baseRot),
   0,
@@ -367,31 +373,36 @@ const right = new THREE.Vector3(
   -Math.sin(baseRot)
 );
 
-let x = pos.x + forward.x * radius;
-let z = pos.z + forward.z * radius;
+// CONFIG
+const radius = 3.2;
+const forwardOffset = 2.0;
+const sideOffset = 0.3;
+const heightOffset = 0.8;
 
-// push forward (important fix for “behind plane” issue)
+// base position
+let x = rigPos.x + forward.x * radius;
+let z = rigPos.z + forward.z * radius;
+
+// push forward (prevents floor + plane clipping)
 x += forward.x * forwardOffset;
 z += forward.z * forwardOffset;
 
-// reduce sideways drift
+// slight right correction (fix left drift)
 x += right.x * sideOffset;
 z += right.z * sideOffset;
 
-// FIX HEIGHT (this is what fixes floor clipping)
-let y = pos.y + heightOffset;
+let y = rigPos.y + heightOffset;
 
 ui.setAttribute('position', `${x} ${y} ${z}`);
 
-ui.object3D.lookAt(new THREE.Vector3(pos.x, y, pos.z));
-
+ui.object3D.lookAt(rigPos);
 ui.object3D.renderOrder = 9999;
 
 ui.setAttribute('visible', true);
 }
 
 
-// ================= GROUND ANIMATION =================
+// ================= GROUND =================
 function animateGround(){
 if(takeoff){
 ground.object3D.position.z -= groundSpeed;
