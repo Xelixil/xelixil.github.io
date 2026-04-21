@@ -1,261 +1,242 @@
 ﻿<!DOCTYPE html>
-<html>
+
+<html lang="en">
+
 <head>
-    <meta charset="utf-8">
-    <title>WebXR Experience</title>
-    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>A-Frame WebAR Demo</title>
+
+<!-- A-Frame Library -->
+
+<script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+
+<!-- AR.js for A-Frame -->
+
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+
+<style>
+
+body { margin: 0; overflow: hidden; font-family: sans-serif; }
+
+#ui-overlay {
+
+position: absolute;
+
+top: 10px;
+
+left: 10px;
+
+z-index: 10;
+
+background: rgba(0, 0, 0, 0.7);
+
+color: white;
+
+padding: 15px;
+
+border-radius: 8px;
+
+max-width: 250px;
+
+pointer-events: none;
+
+}
+
+.marker-guide {
+
+border: 2px solid #00ff00;
+
+width: 150px;
+
+height: 150px;
+
+position: absolute;
+
+top: 50%;
+
+left: 50%;
+
+transform: translate(-50%, -50%);
+
+pointer-events: none;
+
+opacity: 0.5;
+
+}
+
+</style>
+
 </head>
 
 <body>
-<a-scene>
+
+
+<!-- UI Information Overlay -->
+
+<div id="ui-overlay">
+
+<h2 style="margin-top:0">WebAR Demo</h2>
+
+<p>1. Point your camera at a <strong>Hiro Marker</strong>.</p>
+
+<p>2. A 3D interactive box will appear on top of it.</p>
+
+<p style="font-size: 0.8em; color: #aaa;">Status: <span id="status">Waiting for Marker...</span></p>
+
+</div>
+
+
+<!-- Visual Guide for the User -->
+
+<div class="marker-guide"></div>
+
+
+<!--
+
+A-Scene setup:
+
+- embedded: keeps it within the div/body
+
+- arjs: initializes the AR engine
+
+- vr-mode-ui: disabled because we are using the phone screen as the view, not a headset
+
+-->
+
+<a-scene
+
+embedded
+
+arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
+
+vr-mode-ui="enabled: false">
+
+
+<!-- Define the Assets (Materials, Models) -->
 
 <a-assets>
-    <img id="howls" src="Pictures/howls.png">
-    <img id="cottage" src="Pictures/cottage.png">
-    <img id="roof" src="Pictures/roof.png">
 
-    <img id="btn1Img" src="Pictures/Button1.png">
-    <img id="btn2Img" src="Pictures/Button2.png">
-    <img id="btn3Img" src="Pictures/Button3.png">
-    <img id="btn4Img" src="Pictures/Button4.png">
-    <img id="btn5Img" src="Pictures/Button5.png">
+<!--
 
-    <img id="groundTex" src="Pictures/ground.png">
-    <img id="skyPlaneImg" src="Pictures/Sky1.png">
-    <img id="sky2Img" src="Pictures/Sky2.jpg">
+FIX: Added crossorigin="anonymous" to the image tag.
 
-    <a-asset-item id="planeModel" src="Pictures/plane.glb"></a-asset-item>
+This is required when loading textures from a different domain
+
+to satisfy WebGL/Three.js security policies (CORS).
+
+-->
+
+<img id="grid" src="https://cdn.aframe.io/a-painter/images/floor.jpg" crossorigin="anonymous">
+
 </a-assets>
 
-<a-sky id="sky" src="#howls" material="opacity: 1; transparent: true"></a-sky>
-<a-sky id="planeSky" src="#skyPlaneImg" visible="false" material="opacity: 1; transparent: true"></a-sky>
-<a-sky id="planeSky2" src="#sky2Img" visible="false" material="opacity: 0; transparent: true"></a-sky>
 
-<a-plane id="ground"
-    rotation="-90 0 0" width="200" height="200" position="0 -20 0"
-    material="src:#groundTex; repeat:100 100; shader:standard; roughness:1; metalness:0"
-    visible="false">
-</a-plane>
+<!--
 
-<a-entity id="plane" gltf-model="#planeModel" position="0 0 0" scale="2 2 2" visible="false"></a-entity>
+A-Marker: The anchor for the AR content.
 
-<a-entity id="ui" visible="false">
-    <a-box class="link" id="b1" position="-2.25 0 0" depth="0.1" height="1" width="1" material="src:#btn1Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-    <a-box class="link" id="b2" position="-0.75 0 0" depth="0.1" height="1" width="1" material="src:#btn2Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-    <a-box class="link" id="b3" position="0.75 0 0" depth="0.1" height="1" width="1" material="src:#btn3Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-    <a-box class="link" id="planeBtn" position="2.25 0 0" depth="0.1" height="1" width="1" material="src:#btn4Img; transparent:true; depthTest:false; alphaTest:0.1"></a-box>
-</a-entity>
+"preset: hiro" uses the standard hiro pattern.
 
-<a-entity id="rig">
-  <a-entity camera look-controls id="main-cam">
-    <a-cursor raycaster="objects: .link" material="color:white; shader:flat; depthTest:false"></a-cursor>
-  </a-entity>
-</a-entity>
+-->
 
-<a-entity id="nextBtn"
-    class="link"
-    geometry="primitive:plane; height:0.35; width:0.7"
-    material="src:#btn5Img; transparent:true; depthTest:false"
-    visible="false">
-</a-entity>
+<a-marker preset="hiro" id="main-marker">
 
-<a-text id="stepText"
-    value=""
-    align="center"
-    color="#FFFFFF"
-    width="3.5"
-    wrap-count="28"
-    font="https://cdn.aframe.io/fonts/DejaVu-sdf.fnt"
-    visible="false"
-    geometry="primitive: plane; width: 3.8; height: 1.4" 
-    material="color: #000; opacity: 0.8; transparent: true; depthTest: false">
+
+<!-- A 3D Box that appears when the marker is found -->
+
+<a-box
+
+position="0 0.5 0"
+
+material="src: #grid; color: #4CC3D9; transparent: true; opacity: 0.9"
+
+animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+
+</a-box>
+
+
+<!-- A floating text label -->
+
+<a-text
+
+value="A-Frame AR"
+
+position="0 1.2 0"
+
+align="center"
+
+color="#FFF"
+
+scale="1.5 1.5 1.5"
+
+geometry="primitive: plane; width: 1.5; height: 0.3"
+
+material="color: #333">
+
 </a-text>
+
+
+<!-- A rotating ring around the base -->
+
+<a-ring
+
+color="#EF2D5E"
+
+radius-inner="0.6"
+
+radius-outer="0.7"
+
+rotation="-90 0 0"
+
+animation="property: scale; from: 1 1 1; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1000">
+
+</a-ring>
+
+
+</a-marker>
+
+
+<!-- Static camera that moves according to the marker position -->
+
+<a-entity camera></a-entity>
+
 
 </a-scene>
 
+
 <script>
-window.addEventListener('DOMContentLoaded', () => {
 
-    const scene = document.querySelector('a-scene');
-    const sky = document.querySelector('#sky');
-    const planeSky = document.querySelector('#planeSky');
-    const planeSky2 = document.querySelector('#planeSky2');
-    const ground = document.querySelector('#ground');
-    const plane = document.querySelector('#plane');
-    const ui = document.querySelector('#ui');
-    const planeBtn = document.querySelector('#planeBtn');
-    const nextBtn = document.querySelector('#nextBtn');
-    const stepText = document.querySelector('#stepText');
-    const rig = document.querySelector('#rig');
+// Simple logic to update the UI status based on marker detection
 
-    let inPlaneMode = false;
-    let step = 0;
-    let planeLoaded = false;
-    let takeoff = false;
-    let groundSpeed = 0.08;
+const marker = document.querySelector('#main-marker');
 
-    const steps = [
-        { x: 50, y: 3, z: 40, rotY: 0, btnAngle: 220, info: "Welcome Aboard! In this experience we'll let you experience your first Flight on an Airplane!" },
-        { x: 0, y: 0.4, z: 27, rotY: -90, btnAngle: 150, info: "You've now entered the Main Cabin. This is where the Flight attendants or Pilot will welcome you to the plane" },
-        { x: 0, y: 0.4, z: 9.4, rotY: -90, btnAngle: 50, info: "We've walked to your seat. Don't forget to put your belongings to the Overhead Bin! Only small bags are allowed at your seat" },
-        { x: 3, y: -0.3, z: 9.4, rotY: -90, btnAngle: 0, info: "You've reached your seat. Ready for takeoff? Watch as the scenery changes outside" },
-    ];
+const statusText = document.querySelector('#status');
 
-    // ================= HELPER: FORCE RENDER ON TOP =================
-    // This function digs into the materials to ensure they ignore the plane model
-    function forceOnTop(el) {
-        el.object3D.renderOrder = 99999;
-        el.object3D.traverse(obj => {
-            if (obj.material) {
-                obj.material.depthTest = false;
-                obj.material.depthWrite = false;
-                obj.material.transparent = true;
-            }
-        });
-    }
 
-    // ================= INITIALIZATION =================
-    scene.addEventListener('loaded', () => {
-        if (!scene.is('vr-mode')) rig.object3D.position.y = 1.6;
-        setTimeout(spawnButtons, 600);
-    });
+marker.addEventListener('markerFound', () => {
 
-    plane.addEventListener('model-loaded', () => { planeLoaded = true; });
+statusText.innerText = "Marker Found!";
 
-    function spawnButtons() {
-        const rigPos = new THREE.Vector3();
-        rig.object3D.getWorldPosition(rigPos);
-        const direction = new THREE.Vector3(0, 0, -1);
-        direction.applyQuaternion(document.querySelector('#main-cam').object3D.quaternion);
-        direction.y = 0; 
-        direction.normalize();
+statusText.style.color = "#00ff00";
 
-        const radius = 4.5; 
-        const heightOffset = 0.5;
-
-        ui.setAttribute('position', `${rigPos.x + direction.x * radius} ${rigPos.y + heightOffset} ${rigPos.z + direction.z * radius}`);
-        ui.object3D.lookAt(rigPos.x, rigPos.y + heightOffset, rigPos.z);
-        ui.setAttribute('visible', true);
-        
-        // Ensure menu is on top
-        ui.querySelectorAll('a-box').forEach(forceOnTop);
-    }
-
-    function setSky(type) {
-        if (type === 'normal') {
-            sky.setAttribute('visible', true); planeSky.setAttribute('visible', false); planeSky2.setAttribute('visible', false);
-        }
-        if (type === 'plane') {
-            sky.setAttribute('visible', false); planeSky.setAttribute('visible', true); planeSky2.setAttribute('visible', false);
-        }
-        if (type === 'plane2') {
-            planeSky2.setAttribute('visible', true);
-            planeSky2.setAttribute('animation', { property: 'components.material.material.opacity', from: 0, to: 1, dur: 4000, easing: 'linear' });
-        }
-    }
-
-    // ================= PLACEMENT =================
-    function placeNextButton(stepIndex) {
-        const rigPos = new THREE.Vector3();
-        rig.object3D.getWorldPosition(rigPos);
-        const baseRot = THREE.MathUtils.degToRad(rig.object3D.rotation.y);
-        const angle = baseRot + THREE.MathUtils.degToRad(steps[stepIndex].btnAngle);
-        const radius = 2.8;
-
-        const x = rigPos.x + Math.sin(angle) * radius;
-        const z = rigPos.z + Math.cos(angle) * radius;
-        const y = rigPos.y + 0.1;
-
-        // Position Button
-        nextBtn.setAttribute('position', `${x} ${y} ${z}`);
-        nextBtn.object3D.lookAt(rigPos.x, y, rigPos.z);
-        nextBtn.setAttribute('visible', true);
-
-        // Position Text HIGHER UP (y + 1.1)
-        stepText.setAttribute('position', `${x} ${y + 1.1} ${z}`);
-        stepText.setAttribute('value', steps[stepIndex].info);
-        stepText.object3D.lookAt(rigPos.x, y + 1.1, rigPos.z);
-        stepText.setAttribute('visible', true);
-
-        // Apply the "On Top" fix to both
-        forceOnTop(nextBtn);
-        forceOnTop(stepText);
-    }
-
-    // ================= LOGIC =================
-    planeBtn.addEventListener('click', () => { resetPlaneMode(); enterPlaneMode(); });
-
-    function enterPlaneMode() {
-        inPlaneMode = true; step = 0; takeoff = false;
-        setSky('plane'); ui.setAttribute('visible', false); ground.setAttribute('visible', true);
-        const start = () => {
-            plane.setAttribute('visible', true);
-            moveRig(steps[0]);
-            setTimeout(() => placeNextButton(0), 850);
-        };
-        if (!planeLoaded) plane.addEventListener('model-loaded', start, { once: true });
-        else start();
-    }
-
-    nextBtn.addEventListener('click', () => {
-        if (!inPlaneMode) return;
-        step++;
-        if (step < steps.length) {
-            moveRig(steps[step]);
-            setTimeout(() => placeNextButton(step), 850);
-        } else {
-            nextBtn.setAttribute('visible', false);
-            stepText.setAttribute('visible', false);
-            startTakeoff();
-        }
-    });
-
-    function startTakeoff() {
-        takeoff = true;
-        setTimeout(() => {
-            ground.setAttribute('animation__drop', { property: 'position', to: `0 -120 -400`, dur: 12000, easing: 'linear' });
-        }, 3000);
-        setTimeout(() => setSky('plane2'), 7000);
-        setTimeout(() => {
-            ground.setAttribute('visible', false);
-            spawnButtons();
-            inPlaneMode = false;
-        }, 15000);
-    }
-
-    function moveRig(pos) {
-        const h = scene.is('vr-mode') ? 0 : 1.2;
-        rig.setAttribute('animation__pos', { property: 'position', to: `${pos.x} ${pos.y + h} ${pos.z}`, dur: 800 });
-        rig.setAttribute('animation__rot', { property: 'rotation', to: `0 ${pos.rotY} 0`, dur: 800 });
-    }
-
-    function resetPlaneMode() {
-        step = 0; takeoff = false;
-        ground.object3D.position.set(0, -20, 0);
-        plane.setAttribute('visible', false);
-        nextBtn.setAttribute('visible', false);
-        stepText.setAttribute('visible', false);
-        setSky('normal');
-    }
-
-    function animate() {
-        if (takeoff) ground.object3D.position.z -= groundSpeed;
-        requestAnimationFrame(animate);
-    }
-    animate();
-
-    document.querySelectorAll('#b1,#b2,#b3').forEach(el => {
-        el.addEventListener('click', () => {
-            inPlaneMode = false; plane.setAttribute('visible', false); ground.setAttribute('visible', false);
-            nextBtn.setAttribute('visible', false); stepText.setAttribute('visible', false);
-            setSky('normal');
-            if (el.id === 'b1') sky.setAttribute('src', '#howls');
-            if (el.id === 'b2') sky.setAttribute('src', '#cottage');
-            if (el.id === 'b3') sky.setAttribute('src', '#roof');
-            setTimeout(spawnButtons, 100);
-        });
-    });
 });
+
+
+marker.addEventListener('markerLost', () => {
+
+statusText.innerText = "Waiting for Marker...";
+
+statusText.style.color = "#aaa";
+
+});
+
 </script>
+
 </body>
+
 </html>
